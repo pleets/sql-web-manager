@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<link rel="icon" href="<?= $this->basePath() ?>/public/img/favicon.png" type="image/x-icon" />
+	<link rel="shortcut icon" href="<?= $this->basePath() ?>/public/img/favicon.png" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<?php $this->setTitle('Dashboard'); $_title = $this->getTitle(); ?>
+
+	<title><?= $_title ?></title>
+
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/lib/semantic/semantic.min.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/semantic-config.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/lib/CSSRender/css-render.css" />
+
+	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/jquery-3.1.0.min.js"></script>
+	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/lib/semantic/semantic.min.js"></script>
+	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/semantic-config.js"></script>
+	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/app.js"></script>
+	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/workflow.js"></script>
+
+    <!-- CodeMirror -->
+    <link rel="stylesheet" href="<?= $this->basePath(); ?>/public/lib/CodeMirror/lib/codemirror.css" type='text/css' />
+    <link rel="stylesheet" href="<?= $this->basePath(); ?>/public/lib/CodeMirror/theme/monokai.css" type='text/css' />
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/lib/codemirror.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/php/php.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/clike/clike.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/htmlmixed/htmlmixed.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/xml/xml.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/sql/sql.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/javascript/javascript.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/mode/css/css.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/addon/selection/active-line.js"></script>
+    <script src="<?= $this->basePath(); ?>/public/lib/CodeMirror/addon/edit/matchbrackets.js"></script>
+
+</head>
+
+<body data-path='<?= $this->basePath(); ?>'>
+
+	<?= $this->content(); ?>
+
+	<!-- update title -->
+	<?php if ($this->getTitle() !== $_title): ?>
+		<script type="text/javascript">
+			$("head title").text($("head title").text() + ' - <?= $this->getTitle() ?>');
+		</script>
+	<?php endif; ?>
+
+</body>
+
+</html>

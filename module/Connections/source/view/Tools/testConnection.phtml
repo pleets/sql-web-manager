@@ -1,0 +1,53 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<div class="ui success message">
+		<p>
+			<strong><i class="checkmark icon"></i></strong> Successfully connection!
+		</p>
+	</div>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="ui yellow message">
+		<p>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+		</p>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="ui negative message">
+		<div class="header">
+			Error!
+		</div>
+		<p>
+			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+		</p>
+	</div>
+
+<?php else: ?>
+
+	<div class="ui negative message">
+		<div class="header">
+			Error!
+		</div>
+		<p>
+			<strong><i class="warning sign icon"></i></strong> Server response not found!
+		</p>
+	</div>
+
+<?php endif; ?>

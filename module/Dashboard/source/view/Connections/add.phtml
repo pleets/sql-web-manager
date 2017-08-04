@@ -1,0 +1,37 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<?php var_dump($this->param("ctypes")) ?>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="alert alert-warning">
+		<strong>Warning!</strong> <?= $this->param("message") ?>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="alert alert-danger">
+		<strong>Error!</strong> <?= $this->param("message") ?>
+	</div>
+
+<?php else: ?>
+
+	<div class="alert alert-danger">
+		<strong>Error!</strong> Unknown error
+	</div>
+
+<?php endif; ?>

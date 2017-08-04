@@ -1,0 +1,18 @@
+<h4 class="text-danger"><?= $this->param('file') ?></h4>
+
+<?php if (count($this->param("json"))): ?>
+
+    <div class="list-group">
+
+        <?php foreach($this->param("json") as $id => $object): ?>
+
+            <a href="<?= $this->basePath() ?>/public/Catcher/Index/readObject/file/<?= $this->param('_file') ?>/key/<?= $id ?>" class="list-group-item">
+                <h4 class="list-group-item-heading"><?= $id ?></h4>
+                <p class="list-group-item-text"><?= $object["message"] ?></p>
+            </a>
+
+        <?php endforeach; ?>
+
+    </div>
+
+<?php endif; ?>

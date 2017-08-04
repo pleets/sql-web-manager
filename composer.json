@@ -1,0 +1,28 @@
+{
+    "name": "pleets/dronephp-skeleton",
+    "description": "Skeleton Application for DronePHP Framework",
+    "license": "MIT licence",
+    "keywords": [
+        "framework",
+        "PHP"
+    ],
+    "homepage": "http://www.dronephp.com",
+    "support": {
+        "issues": "https://github.com/Pleets/DronePHP-Skeleton/issues",
+        "source": "https://github.com/Pleets/DronePHP-Skeleton"
+    },
+    "authors": [
+        {
+            "name": "Darío Rivera",
+            "email": "fermius.us@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "^5.6 || ^7.0",
+        "pleets/dronephp": "1.1.*"
+    },
+    "autoload": {
+    	"psr-0": {"": "src/"}
+    },
+    "minimum-stability": "alpha"
+}

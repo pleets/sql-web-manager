@@ -1,0 +1,124 @@
+<?php if ($this->param("process") == "update-form"): ?>
+
+	<?php
+		$types = $this->param('types');
+		$fieldTypes = $this->param('fieldTypes');
+
+		$connection = $this->param('connection');
+		$details = $this->param('connection_details');
+	?>
+
+	<form class="ui form" id="frm-update-user-connection" data-role="ajax-request" data-response="#edit-user-connection-response"
+		action="<?= $this->basePath() ?>/public/Connections/User/editConnection" method="post">
+		<input type="hidden" name="conn_id" value="<?= $connection->USER_CONN_ID ?>" />
+		<div class="fields">
+			<div class="eight wide field">
+				<label for="conntype">Connection Type</label>
+				<select name="type" id="conntype" onchange="
+						var type = $(this).val();
+						var fieldTypes = $(this).parent().parent().parent().find('.fields.type');
+
+						$.each(fieldTypes, function(key, htmlEl){
+
+							if ($(htmlEl).attr('data-type') == type)
+								$(htmlEl).show();
+							else
+								$(htmlEl).hide().find('input').val('');
+						});
+					">
+					<option value="">Selection</option>
+					<?php foreach ($types as $type): ?>
+						<option value="<?= $type->CONN_TYPE_ID ?>" <?= ($type->CONN_TYPE_ID == $connection->CONN_TYPE_ID) ? "selected='selected'" : "" ?>><?= $type->CONN_TYPE_NAME ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<div class="eight wide field">
+				<label for="aliasname">Connection name</label>
+				<input type="text" id="aliasname" name="aliasname" placeholder="alias for your connection" value="<?= $connection->CONNECTION_NAME ?>" />
+			</div>
+		</div>
+		<?php foreach ($fieldTypes as $type => $fields): ?>
+			<div class="fields type" data-type="<?= $type ?>">
+				<?php foreach ($fields as $field): ?>
+					<div class="field">
+						<label for="field<?= $type. $field->CONN_IDENTI_ID ?>"><?= $field->FIELD_NAME ?></label>
+						<input type="text" id="field<?= $type. $field->CONN_IDENTI_ID ?>" name="field[<?= $type ?>][<?= $field->CONN_IDENTI_ID ?>]" placeholder="<?= $field->PLACEHOLDER ?>" value="<?= (array_key_exists($field->CONN_IDENTI_ID, $details)) ? $details[$field->CONN_IDENTI_ID]->FIELD_VALUE : '' ?>">
+					</div>
+				<?php endforeach; ?>
+			</div>
+		<?php endforeach; ?>
+		<button class="ui submit button"><i class="check icon"></i> Save</button>
+		<button class="ui button" type="button" data-role="ajax-request" data-type="post"
+			data-url="<?= $this->basePath() ?>/public/Connections/Tools/testConnection"
+			data-object="v = { conn_id: <?= $connection->USER_CONN_ID ?> }"
+			data-response="#edit-user-connection-response"
+			><i class="play icon"></i> Test</button>
+	</form><br />
+
+	<div id="edit-user-connection-response"></div>
+
+	<script type="text/javascript">
+		$("#frm-update-user-connection").find('.fields.type').hide();
+		$("#frm-update-user-connection").find(".fields.type[data-type='<?= $connection->CONN_TYPE_ID ?>']").show();
+	</script>
+
+<?php elseif ($this->param("process") == "process-response"): ?>
+
+	<div class="ui success message">
+		<div class="header">
+			Success!
+		</div>
+		<p>
+			<strong><i class="warning checkmark icon"></i></strong> Connection updated!
+		</p>
+	</div>
+
+	<script type="text/javascript">
+		$("#btn-list-connections").trigger("click");
+	</script>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="ui yellow message">
+		<p>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+		</p>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="ui negative message">
+		<div class="header">
+			Error!
+		</div>
+		<p>
+			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+		</p>
+	</div>
+
+<?php else: ?>
+
+	<div class="ui negative message">
+		<div class="header">
+			Error!
+		</div>
+		<p>
+			<strong><i class="warning sign icon"></i></strong> Server response not found!
+		</p>
+	</div>
+
+<?php endif; ?>

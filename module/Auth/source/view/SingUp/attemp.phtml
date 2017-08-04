@@ -1,0 +1,60 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<div class="alert alert-success">
+		<strong><span class="glyphicon glyphicon-ok"></span></strong>
+		Welcome <em><?= $this->param("username") ?></em>.
+	</div>
+
+	<div id="singup-success-message">
+
+		<?php if ($this->param('mail')): ?>
+			<p><span class="glyphicon glyphicon-envelope"></span> We had sent an email to your inbox.
+			<strong><?= $this->param("email") ?></strong>.
+			Please check your email and verify your account!.</p><br />
+		<?php endif; ?>
+
+        <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
+            class="btn btn-default" type="submit"><span class="glyphicon glyphicon-log-in"></span> Log in
+        </a>
+	</div>
+
+	<script type="text/javascript">
+		setTimeout(function(){
+			$("#frm-singup").hide("slow");
+			$("#singup-success-message").show("slow");
+		}, 1000);
+	</script>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="alert alert-warning">
+		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="alert alert-danger">
+		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+<?php else: ?>
+
+	<div class="alert alert-danger">
+		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;Unknown error
+	</div>
+
+<?php endif; ?>

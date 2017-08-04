@@ -1,0 +1,45 @@
+<?php $folders = $this->param('folders'); ?>
+
+<h2>Catched Folders</h2>
+
+<?php if (count($folders)): ?>
+
+	<?php foreach ($folders as $folder => $files): ?>
+
+		<h3><span class="glyphicon glyphicon-folder-open"></span> /<?= $folder ?></h3>
+
+		<?php if (count($files)): ?>
+
+			<div class="table-responsive">
+				<table class="table table-striped table-condensed table-hovered table-bordered">
+					<thead>
+						<tr>
+							<th>Filename</th>
+							<th>Size</th>
+							<th>Last modified</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php foreach($files as $file): ?>
+							<tr>
+								<td><?= 'cache/' . $file ?></td>
+								<td><?= filesize('cache/' . $file) ?> bytes</td>
+								<td><?= date("Y-m-d H:i:s", filectime('cache/' . $file)) ?></td>
+								<td>
+									<a href="<?= $this->basePath() ?>/public/Catcher/Index/read/file/<?= bin2hex($folder.'/'.$file) ?>" class="btn btn-warning btn-sm">
+										<span class="glyphicon glyphicon-menu-right"></span> Read
+									</a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+					</tbody>
+				</table>
+			</div>
+
+		<?php endif; ?>
+
+	<?php endforeach; ?>
+
+
+<?php endif; ?>

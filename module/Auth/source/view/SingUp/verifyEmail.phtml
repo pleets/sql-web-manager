@@ -1,0 +1,44 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<div class="alert alert-success">
+		<strong><span class="glyphicon glyphicon-ok"></span></strong>
+		Your email account had verified. You can now log in.
+	</div>
+
+    <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
+        class="btn btn-info" type="submit"><span class="glyphicon glyphicon-log-in"></span> Log in
+    </a>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="alert alert-danger">
+		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="alert alert-warning">
+		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php else: ?>
+
+	<div class="alert alert-danger">
+		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;Unknown error
+	</div>
+
+<?php endif; ?>

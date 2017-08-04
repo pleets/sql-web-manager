@@ -1,0 +1,54 @@
+<?php
+	$uniqid = $this->param("id");
+	$conn   = $this->param("conn");
+?>
+
+<form id="frm-sql-<?= $uniqid ?>" action="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" method="post"
+	data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>">
+	<div class="form-group">
+		<textarea spellcheck="false" name="sql" id="sql<?= $uniqid ?>" rows="10" ui-codemirror class="form-control" autofocus="autofocus" placeholder="your sql here!"></textarea>
+		<input type="hidden" name="conn" value="<?= $conn ?>" />
+	</div>
+    <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> Execute</button>
+</form><br />
+
+<div id="sql-res<?= $uniqid ?>"></div>
+
+<style>
+.CodeMirror-gutter-wrapper {
+	left: -29px !important;
+}
+.CodeMirror-sizer {
+	margin-left: 29px !important;
+}
+.CodeMirror {
+    height: 180px;
+}
+</style>
+
+<script>
+	var editor = CodeMirror.fromTextArea(document.getElementById("sql<?= $uniqid ?>"), {
+	    lineNumbers: true,
+	    matchBrackets: true,
+	    mode: "text/x-sql",
+	    indentUnit: 4,
+	    indentWithTabs: true,
+	    theme: 'monokai',
+	});
+
+	$("#frm-sql-<?= $uniqid ?>")[0].addEventListener('keydown', (event) => {
+
+	  	const keyName = event.key;
+
+		if (keyName === 'Control')
+			return;
+
+		if (event.ctrlKey)
+		{
+			if (keyName === 'Enter')
+				$("#frm-sql-<?= $uniqid ?> button[type='submit']").trigger('click');
+	  	}
+
+	}, false);
+
+</script>

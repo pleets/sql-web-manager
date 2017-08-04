@@ -1,0 +1,62 @@
+<h3 class="text-danger"><?= $this->param('file') ?></h3>
+
+<span class="text-muted"><?= $this->param('key') ?></span><br /><br />
+
+<?php if ($this->isParam("event_mode")): ?>
+
+    <?php var_dump($this->param("object")); ?>
+
+<?php else: ?>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-condensed table-bordered">
+            <thead>
+                <tr>
+                    <th>Line</th>
+                    <th>Class - method - params</th>
+                    <th>File</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($this->param("object")->getTrace() as $item): ?>
+
+                    <tr>
+                        <td><?= $item["line"] ?></td>
+                        <td><span class="text-info"><?= $item["class"] ?></span><?= $item["type"] ?><span class="text-danger"><?=$item["function"] ?></span>(
+                                <?php
+                                    $i = 1;
+
+                                    $count = count($item["args"]);
+
+                                    foreach ($item["args"] as $arg):
+                                        if ($i == $count):
+                                            ?>
+
+                                                <?php if  (is_string($arg)): ?>
+                                                    <code style="white-space: pre"><?= $arg ?></code>
+                                                <?php else: ?>
+                                                    <?php var_dump($arg); ?>
+                                                <?php endif; ?>
+                                                <?php
+                                        else:
+                                            ?>
+                                                <?php if  (is_string($arg)): ?>
+                                                    <code><?= $arg ?></code>,
+                                                <?php else: ?>
+                                                    <?php var_dump($arg); ?>,
+                                                <?php endif; ?>
+                                                <?php
+                                        endif;
+                                        $i++;
+                                    endforeach;
+                                ?>
+                        )</td>
+                        <td><?= basename($item["file"]) ?></td>
+                    </tr>
+
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+<?php endif; ?>

@@ -1,0 +1,69 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<div class="ui tabular menu">
+		<a class="item active" data-tab="tab-1">
+			Developer
+		</a>
+	</div>
+
+	<div class="ui tab active" data-tab="tab-1">
+		<div class="ui grid">
+			<div class="four wide column">
+				<div class="ui icon buttons">
+					<button class="ui button" data-toggle="modal" data-target="#md-eliminar-frontera"
+							data-url="<?= $this->basePath() ?>/public/Connections/User/addConnection" title="Add connection"
+							data-role="ajax-request" data-type="get" data-response="#add-connection-response"
+							data-callback="v = {
+								before: function() { $('#md-add-connection').modal('show'); },
+								success: function() { $('#md-add-connection').modal('refresh'); },
+							}">
+						<i class="plus icon"></i>
+					</button>
+					<button class="ui button" data-url="<?= $this->basePath() ?>/public/Connections/User/listConnections"
+						data-role="ajax-request" data-type="get" data-response="#list-connections-response" id="btn-list-connections">
+						<i class="refresh icon"></i>
+					</button>
+					<a class="ui button" href="<?= $this->basePath() ?>/public/Auth/LogOut/close" class="item">
+						<i class="power icon"></i> Logout
+					</a>
+				</div>
+				<div class="ui relaxed divided list" id="list-connections-response">
+				</div>
+			</div>
+			<div class="twelve wide column" id="worksheet-collector">
+				<div class="ui pointing secondary menu">
+					<a class="active item worksheet-item-title" data-tab="home">Home</a>
+				</div>
+				<div class="ui active tab vertical segment worksheet-item-content" data-tab="home" data-resource="<?= $this->basePath() ?>/public/Connections/Tools/worksheet">
+					<div id="activity-response">Welcome to SQL Web Manager!</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="ui modal" id="md-add-connection">
+		<div class="header">Add connection</div>
+		<div class="content">
+			<div id="add-connection-response"></div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		$(function(){
+			$("#btn-list-connections").trigger("click");
+		});
+	</script>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="alert alert-danger">
+		<strong>Error!</strong> <?= $this->param("message") ?>
+	</div>
+
+<?php else: ?>
+
+	<div class="alert alert-danger">
+		<strong>Error!</strong> Unknown error
+	</div>
+
+<?php endif; ?>
