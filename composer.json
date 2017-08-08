@@ -19,7 +19,7 @@
     ],
     "require": {
         "php": "^5.6 || ^7.0",
-        "pleets/dronephp": "1.1.*"
+        "pleets/dronephp": "1.2.*"
     },
     "autoload": {
     	"psr-0": {"": "src/"}
