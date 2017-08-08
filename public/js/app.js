@@ -77,6 +77,7 @@ $(function(){
         var type = $(this).attr('data-type');
         var box  = $(this).attr('data-response');
         var data = $(this).attr('data-object');
+        var frm  = $(this).attr('data-form');
 
         var call = eval($(this).attr('data-callback')) || {};
 
@@ -84,10 +85,19 @@ $(function(){
         call.before  = call.before  || new Function();
         call.error   = call.error   || new Function();
 
+        var form_data = $(frm).serializeArray();
+
+        var parsed = eval(data);
+
+        for (var i in parsed)
+        {
+            form_data.push({ name: i, value: parsed[i] });
+        }
+
         $.ajax({
             url: url,
             type: type,
-            data: eval(data),
+            data: form_data,
             beforeSend: function() {
                 $(box).html("&nbsp; <span class='$ rotate-x infinite fast' style='display: inline-block'><i class='icon idea' aria-hidden='true'></i></span> Cargando...");
                 call.before();

@@ -44,7 +44,7 @@
 			</div>
 		<?php endforeach; ?>
 		<button class="ui submit button"><i class="check icon"></i> Save</button>
-		<button class="ui button" type="button" data-role="ajax-request" data-type="post"
+		<button class="ui button" type="button" data-role="ajax-request" data-type="post" data-form="#frm-add-user-connection"
 			data-url="<?= $this->basePath() ?>/public/Connections/Tools/testConnection" data-response="#add-user-connection-response"
 			><i class="play icon"></i> Test</button>
 	</form><br />

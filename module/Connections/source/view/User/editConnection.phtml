@@ -10,7 +10,7 @@
 
 	<form class="ui form" id="frm-update-user-connection" data-role="ajax-request" data-response="#edit-user-connection-response"
 		action="<?= $this->basePath() ?>/public/Connections/User/editConnection" method="post">
-		<input type="hidden" name="conn_id" value="<?= $connection->USER_CONN_ID ?>" />
+		<input type="hidden" name="_conn_id" value="<?= $connection->USER_CONN_ID ?>" />
 		<div class="fields">
 			<div class="eight wide field">
 				<label for="conntype">Connection Type</label>
@@ -50,8 +50,7 @@
 		<button class="ui submit button"><i class="check icon"></i> Save</button>
 		<button class="ui button" type="button" data-role="ajax-request" data-type="post"
 			data-url="<?= $this->basePath() ?>/public/Connections/Tools/testConnection"
-			data-object="v = { conn_id: <?= $connection->USER_CONN_ID ?> }"
-			data-response="#edit-user-connection-response"
+			data-response="#edit-user-connection-response" data-form="#frm-update-user-connection"
 			><i class="play icon"></i> Test</button>
 	</form><br />
 

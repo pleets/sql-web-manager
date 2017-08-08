@@ -168,7 +168,7 @@ class Tools extends AbstractionController
     }
 
     /**
-     * Tests connections
+     * Tests a connection
      *
      * @return array
      */
@@ -184,28 +184,38 @@ class Tools extends AbstractionController
         # TRY-CATCH-BLOCK
         try {
 
-            $id = $post["conn_id"];
-
-            $connection = $this->getUserConnectionEntity()->select([
-                "USER_CONN_ID" => $id
-            ]);
-
-            $connection = array_shift($connection);
-
-            $details = $this->getUserConnectionDetailsEntity()->select([
-                "USER_CONN_ID" => $id
-            ]);
-
             $idenfiers = $this->getIdentifiersEntity()->select([]);
-
             $dbconfig = [];
 
-            foreach ($details as $field)
+            if (array_key_exists('conn_id', $post))
             {
-                foreach ($idenfiers as $identifier)
+                $id = $post["conn_id"];
+
+                $details = $this->getUserConnectionDetailsEntity()->select([
+                    "USER_CONN_ID" => $id
+                ]);
+
+                foreach ($details as $field)
                 {
-                    if ($field->CONN_IDENTI_ID == $identifier->CONN_IDENTI_ID)
-                        $dbconfig[$identifier->CONN_IDENTI_NAME] = $field->FIELD_VALUE;
+                    foreach ($idenfiers as $identifier)
+                    {
+                        if ($field->CONN_IDENTI_ID == $identifier->CONN_IDENTI_ID)
+                            $dbconfig[$identifier->CONN_IDENTI_NAME] = $field->FIELD_VALUE;
+                    }
+                }
+
+            }
+            else 
+            {
+                $id = 0;
+
+                foreach ($post['field'][$post["type"]] as $field_number => $field_value)
+                {
+                    foreach ($idenfiers as $identifier)
+                    {
+                        if ($field_number == $identifier->CONN_IDENTI_ID)
+                            $dbconfig[$identifier->CONN_IDENTI_NAME] = $field_value;
+                    }
                 }
             }
 
@@ -216,11 +226,6 @@ class Tools extends AbstractionController
             $driverAdapter->getDb()->reconnect();
 
             $err = $driverAdapter->getDb()->getErrors();
-
-            /*$auth = new Authentication($entity, false);
-            $auth->connect($dbconfig);
-
-            $err = $auth->getDb()->getErrors();*/
 
             if (count($err))
                 throw new Exception(array_shift($err), 300);

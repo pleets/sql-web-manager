@@ -449,7 +449,7 @@ class User extends AbstractionController
                 $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
 
                 $userConnection = $this->getUserConnectionEntity()->select([
-                    "USER_CONN_ID"    => $post["conn_id"],
+                    "USER_CONN_ID"    => $post["_conn_id"],
                 ]);
 
                 $userConnection = array_shift($userConnection);
@@ -460,11 +460,11 @@ class User extends AbstractionController
                 ]);
 
                 $this->getUserConnectionEntity()->update($userConnection, [
-                    "USER_CONN_ID"    => $post["conn_id"],
+                    "USER_CONN_ID"    => $post["_conn_id"],
                 ]);
 
                 $this->getUserConnectionDetailsEntity()->delete([
-                    "USER_CONN_ID"   => $post["conn_id"]
+                    "USER_CONN_ID"   => $post["_conn_id"]
                 ]);
 
                 foreach ($post['field'][$post["type"]] as $field_number => $field_value)
@@ -472,7 +472,7 @@ class User extends AbstractionController
                     $userconnectionDetails = new UserConnectionDetails();
 
                     $userconnectionDetails->exchangeArray([
-                        "USER_CONN_ID"   => $post["conn_id"],
+                        "USER_CONN_ID"   => $post["_conn_id"],
                         "CONN_IDENTI_ID" => $field_number,
                         "FIELD_VALUE"    => $field_value
                     ]);
