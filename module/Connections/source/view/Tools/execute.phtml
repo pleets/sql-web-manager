@@ -19,6 +19,7 @@
 					<?php foreach($data as $row): ?>
 						<tr>
 							<?php for ($i = 0; $i < count($data[0]) / 2; $i++): ?>
+								<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
 								<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
 							<?php endfor; ?>
 						</tr>

@@ -42,7 +42,7 @@
 				<?php foreach ($fields as $field): ?>
 					<div class="field">
 						<label for="field<?= $type. $field->CONN_IDENTI_ID ?>"><?= $field->FIELD_NAME ?></label>
-						<input type="text" id="field<?= $type. $field->CONN_IDENTI_ID ?>" name="field[<?= $type ?>][<?= $field->CONN_IDENTI_ID ?>]" placeholder="<?= $field->PLACEHOLDER ?>" value="<?= (array_key_exists($field->CONN_IDENTI_ID, $details)) ? $details[$field->CONN_IDENTI_ID]->FIELD_VALUE : '' ?>">
+						<input type="text" id="field<?= $type. $field->CONN_IDENTI_ID ?>" name="field[<?= $type ?>][<?= $field->CONN_IDENTI_ID ?>]" placeholder="<?= $field->PLACEHOLDER ?>" value="<?= (array_key_exists( (int) $field->CONN_IDENTI_ID, $details)) ? $details[$field->CONN_IDENTI_ID]->FIELD_VALUE : '' ?>">
 					</div>
 				<?php endforeach; ?>
 			</div>
