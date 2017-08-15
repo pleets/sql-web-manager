@@ -10,6 +10,9 @@
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
 	</div>
     <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> Execute</button>
+    <button class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>"
+    data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
+    data-object="v = { conn: '<?= $conn ?>', sql: window.getSelection().toString() }">Execute statement</button>
 </form><br />
 
 <div id="sql-res<?= $uniqid ?>"></div>
@@ -46,9 +49,14 @@
 		if (event.ctrlKey)
 		{
 			if (keyName === 'Enter')
-				$("#frm-sql-<?= $uniqid ?> button[type='submit']").trigger('click');
+			{
+				// F5 - Execute several statements are not supported yet
+				//$("#frm-sql-<?= $uniqid ?> button[type='submit']").trigger('click');
+				$("#execute-statement-<?= $uniqid ?>").trigger('click');
+			}
 	  	}
 
 	}, false);
+
 
 </script>

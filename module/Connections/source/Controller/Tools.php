@@ -205,7 +205,7 @@ class Tools extends AbstractionController
                 }
 
             }
-            else 
+            else
             {
                 $id = 0;
 
@@ -318,6 +318,22 @@ class Tools extends AbstractionController
                 throw new Exception(array_shift($err), 300);
 
             $sql_text = $post["sql"];
+
+            /*
+             * SQL parsing
+             */
+            $sql_text = trim($sql_text);
+            $pos = strpos($sql_text, ';');
+
+            if ($pos !== false)
+            {
+                $end_stament = strstr($sql_text, ';');
+
+                if ($end_stament == ';')
+                    $sql_text = strstr($sql_text, ';', true);
+            }
+
+
 
             $auth = $driverAdapter;
 
