@@ -306,17 +306,6 @@ class Tools extends AbstractionController
                 }
             }
 
-            $entity = new EntityMd([]);
-            $entity->setConnectionIdentifier("CONN" . $id);
-
-            $driverAdapter = new \Drone\Db\Driver\DriverAdapter($dbconfig, false);
-            $driverAdapter->getDb()->reconnect();
-
-            $err = $driverAdapter->getDb()->getErrors();
-
-            if (count($err))
-                throw new Exception(array_shift($err), 300);
-
             $sql_text = $post["sql"];
 
             /*
@@ -337,11 +326,30 @@ class Tools extends AbstractionController
                     $sql_text = strstr($sql_text, ';', true);
             }
 
+            $entity = new EntityMd([]);
+            $entity->setConnectionIdentifier("CONN" . $id);
 
+            $driverAdapter = new \Drone\Db\Driver\DriverAdapter($dbconfig, false);
+
+            # start time to compute execution
+            $startTime = microtime(true);
+
+            $driverAdapter->getDb()->reconnect();
+
+            $err = $driverAdapter->getDb()->getErrors();
+
+            if (count($err))
+                throw new Exception(array_shift($err), 300);
 
             $auth = $driverAdapter;
 
             $data["results"] = $auth->getDb()->execute($sql_text);
+
+            # end time to compute execution
+            $endTime = microtime(true);
+            $elapsed_time = $endTime - $startTime;
+
+            $data["time"] = round($elapsed_time, 4);
 
             $data["num_rows"]      = $auth->getDb()->getNumRows();
             $data["num_fields"]    = $auth->getDb()->getNumFields();
