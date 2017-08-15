@@ -3,13 +3,13 @@
 namespace Auth\Controller;
 
 use Drone\Mvc\AbstractionController;
+use Drone\Debug\Catcher;
 use Drone\Dom\Element\Form;
 use Drone\Validator\FormValidator;
 use Drone\Db\TableGateway\EntityAdapter;
 use Zend\Crypt\Password\Bcrypt;
-use Auth\Model\UsersEntity;
-use Auth\Model\UsersTable;
 use Auth\Model\User;
+use Auth\Model\UserTbl;
 use Exception;
 
 class SingUp extends AbstractionController
@@ -27,7 +27,7 @@ class SingUp extends AbstractionController
         if (!is_null($this->usersEntity))
             return $this->usersEntity;
 
-        $this->usersEntity = new EntityAdapter(new UsersTable(new User()));
+        $this->usersEntity = new EntityAdapter(new UserTbl(new User()));
 
         return $this->usersEntity;
     }
@@ -231,9 +231,22 @@ class SingUp extends AbstractionController
         }
         catch (Exception $e) {
 
-            # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() == 300) ? "warning": "error";
+            # ERROR-TRACKING
+            $data["code"] = $e->getCode();
+            $data["process"] = (in_array($e->getCode(), [300])) ? "warning" : "error";
             $data["message"] = $e->getMessage();
+
+            if (!in_array($e->getCode(), [300]))
+            {
+                $c = new Catcher();
+                $c->setOutput('cache/output.txt');
+
+                if (($id = $c->storeException($e)) === false)
+                {
+                    $errors = $c->getErrors();
+                    echo "<div style='color: red; font-weight: bold'>" .array_shift($errors). "</div><br />";
+                }
+            }
 
             return $data;
         }
