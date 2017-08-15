@@ -323,6 +323,10 @@ class Tools extends AbstractionController
              * SQL parsing
              */
             $sql_text = trim($sql_text);
+
+            if (empty($sql_text))
+                throw new Exception("Empty statement!", 300);
+
             $pos = strpos($sql_text, ';');
 
             if ($pos !== false)
