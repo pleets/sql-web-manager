@@ -35,19 +35,25 @@ $(function(){
 
         content.attr('data-tab', n);
         content.load(content.attr("data-resource"), { id: n, conn: id_conn });
+
+        $('.menu .item').tab();
     });
 
-    $("body").delegate(".ui.menu > .item", "click", function(event)
-    {
-        event.preventDefault();
+    $('.menu .item').tab();
 
-        $(this).parent().find(".item").removeClass('active');
-        $(this).parent().parent().find(".ui.tab").removeClass('active');
+    $("body").delegate(".btn-add-table", "click", function(event) {
 
-        $(this).addClass('active');
+        var d = new Date();
+        var n = d.getTime();
 
-        var tab = $(this).attr('data-tab');
+        var dialog = new JScriptRender.html.Dialog({
+            id: "table-" + n,
+            title: "fff",
+            width: "300px",
+            content: "<p>ff</p>"
+        });
 
-        $(this).parent().parent().find("[data-tab='" + tab + "']").addClass('active');
+        dialog.insert(document.getElementById('modeler-tab'));
+
     });
 });

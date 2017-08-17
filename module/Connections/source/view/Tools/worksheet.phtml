@@ -10,12 +10,18 @@
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
 	</div>
     <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> Execute</button>
-    <button class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>"
+    <button style="display: none" class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
     data-object="v = { conn: '<?= $conn ?>', sql: window.getSelection().toString() }">Execute statement</button>
 </form><br />
 
-<div id="sql-res<?= $uniqid ?>"></div>
+<div id="sql-res<?= $uniqid ?>">
+	<div class="ui blue message">
+		<p>
+			<strong><i class="info icon"></i></strong> &nbsp;Press <strong>CTRL</strong> + <strong>Enter</strong> to execute selected statement
+		</p>
+	</div>
+</div>
 
 <style>
 .CodeMirror-gutter-wrapper {

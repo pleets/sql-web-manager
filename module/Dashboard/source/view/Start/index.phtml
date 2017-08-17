@@ -4,11 +4,17 @@
 		<a class="item active" data-tab="tab-1">
 			Developer
 		</a>
+		<a class="item" data-tab="tab-2">
+			Modeler
+		</a>
+		<a class="item" href="<?= $this->basePath() ?>/public/Auth/LogOut/close">
+			<i class="power icon"></i> Logout
+		</a>
 	</div>
 
 	<div class="ui tab active" data-tab="tab-1">
 		<div class="ui grid">
-			<div class="four wide column">
+			<div class="three wide column">
 				<div class="ui icon buttons">
 					<button class="ui button" data-toggle="modal" data-target="#md-eliminar-frontera"
 							data-url="<?= $this->basePath() ?>/public/Connections/User/addConnection" title="Add connection"
@@ -23,21 +29,25 @@
 						data-role="ajax-request" data-type="get" data-response="#list-connections-response" id="btn-list-connections">
 						<i class="refresh icon"></i>
 					</button>
-					<a class="ui button" href="<?= $this->basePath() ?>/public/Auth/LogOut/close" class="item">
-						<i class="power icon"></i> Logout
-					</a>
 				</div>
 				<div class="ui relaxed divided list" id="list-connections-response">
 				</div>
 			</div>
 			<div class="twelve wide column" id="worksheet-collector">
-				<div class="ui pointing secondary menu">
+				<div class="ui pointing secondary menu" style="overflow-x: auto">
 					<a class="active item worksheet-item-title" data-tab="home">Home</a>
 				</div>
 				<div class="ui active tab vertical segment worksheet-item-content" data-tab="home" data-resource="<?= $this->basePath() ?>/public/Connections/Tools/worksheet">
 					<div id="activity-response">Welcome to SQL Web Manager!</div>
 				</div>
 			</div>
+		</div>
+	</div>
+	<div class="ui tab" data-tab="tab-2" id="modeler-tab">
+		<div class="ui icon buttons">
+			<button class="ui button btn-add-table">
+				<i class="plus icon"></i> New table
+			</button>
 		</div>
 	</div>
 

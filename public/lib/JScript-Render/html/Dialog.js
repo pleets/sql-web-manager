@@ -2,7 +2,7 @@
  * JScript Render - Dialog class
  * http://www.pleets.org
  *
- * Copyright 2014, Pleets Apps
+ * Copyright 2014-2017, Pleets Apps
  * Free to use under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
  */
@@ -33,6 +33,8 @@ JScriptRender.html.Dialog = function(settings, callback)
    set.width = set.width || "auto";
    set.height = set.height || "auto";
 
+   set.position = set.position || "fixed";
+
    set.content = set.content || "";
 
    // Callback
@@ -53,7 +55,11 @@ JScriptRender.html.Dialog = function(settings, callback)
    var container = document.createElement('div');
    if (set.id !== "")
       container.setAttribute('id', set.id);
-   container.setAttribute('class', '$ wrapper base-fix-center ' + set.class);      // Fixed position
+
+   if (set.position == 'absolute')
+      container.setAttribute('class', '$ wrapper base-abs-center ' + set.class);
+   else
+      container.setAttribute('class', '$ wrapper base-fix-center ' + set.class);
 
    container.style.zIndex = 100;
    container.style.width = set.width;
@@ -98,20 +104,33 @@ JScriptRender.html.Dialog = function(settings, callback)
    // draggable
    var x, y;
 
-   function move(event) {
-   // For absotulte position
-   //container.style.top = event.pageY - y + 'px';
-   //container.style.left = event.pageX - x + 'px';
-   container.style.top = event.clientY - y + 'px';
-   container.style.left = event.clientX - x + 'px';
+   function move(event)
+   {
+      if (set.position == 'absolute')
+      {
+         container.style.top = event.pageY - y + 'px';
+         container.style.left = event.pageX - x + 'px';
+      }
+      else
+      {
+         container.style.top = event.clientY - y + 'px';
+         container.style.left = event.clientX - x + 'px';
+      }
    }
 
-   header.addEventListener('mousedown', function(event){
-      // For absotulte position
-      //y = event.pageY - container.offsetTop;
-      //x = event.pageX - container.offsetLeft;
-      y = event.clientY - container.offsetTop;
-      x = event.clientX - container.offsetLeft;
+   header.addEventListener('mousedown', function(event)
+   {
+      if (set.position == 'absolute')
+      {
+         y = event.pageY - container.offsetTop;
+         x = event.pageX - container.offsetLeft;
+      }
+      else
+      {
+         y = event.clientY - container.offsetTop;
+         x = event.clientX - container.offsetLeft;
+      }
+
       document.body.addEventListener('mousemove', move);
       container.style.opacity = 0.7;
    });
@@ -133,10 +152,14 @@ JScriptRender.html.Dialog = function(settings, callback)
    JScriptRender.html.Dialog.prototype.dialog = container;
 }
 
-JScriptRender.html.Dialog.prototype = 
+JScriptRender.html.Dialog.prototype =
 {
    show: function()
    {
        document.body.appendChild(this.dialog);
+   },
+   insert: function(node)
+   {
+       node.appendChild(this.dialog);
    }
 }
