@@ -34,7 +34,7 @@ class LogIn extends AbstractionController
     /**
      * Checks user session and redirect to other module if exists any active session
      *
-     * @return string|null
+     * @return null
      */
     private function runAuthentication()
     {
@@ -77,6 +77,10 @@ class LogIn extends AbstractionController
      */
     public function index()
     {
+        # STANDARD VALIDATIONS [check method]
+        if (!$this->isGet())
+            die('Error 405 (Method Not Allowed)!!');
+
         $this->runAuthentication();
         return [];
     }
@@ -88,7 +92,7 @@ class LogIn extends AbstractionController
      */
     public function attemp()
     {
-        $this->runAuthentication();
+        var_dump($_SERVER["REQUEST_METHOD"]);
 
         # data to send
         $data = [];
@@ -99,6 +103,20 @@ class LogIn extends AbstractionController
 
         # TRY-CATCH-BLOCK
         try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isPost())
+                die('Error 405 (Method Not Allowed)!!');
+
+            # STANDARD VALIDATIONS [check needed arguments]
+            $needles = ['username', 'password'];
+
+            array_walk($needles, function(&$item) use ($post) {
+                if (!array_key_exists($item, $post))
+                    die("Error 400 (Bad Request)!!");
+            });
+
+            $this->runAuthentication();
 
             $components = [
                 "attributes" => [
@@ -119,13 +137,13 @@ class LogIn extends AbstractionController
 
             $options = [
                 "username" => [
-                    "label"      => "Usuario",
+                    "label"      => "Username",
                     "validators" => [
                         "Alnum"  => ["allowWhiteSpace" => false]
                     ]
                 ],
                 "password" => [
-                    "label"      => "Contraseña"
+                    "label"      => "Password"
                 ]
             ];
 
@@ -137,7 +155,7 @@ class LogIn extends AbstractionController
 
             $data["validator"] = $validator;
 
-            # form validation
+            # STANDARD VALIDATIONS [check argument constraints]
             if (!$validator->isValid())
             {
                 $data["messages"] = $validator->getMessages();
@@ -166,8 +184,18 @@ class LogIn extends AbstractionController
 
             $config = include 'module/Auth/config/user.config.php';
             $key    = $config["authentication"]["key"];
+            $method = $config["authentication"]["method"];
 
-            setcookie($key, $user->USERNAME, time() + 2000000000, '/');
+            switch ($method)
+            {
+                case '_COOKIE':
+                    setcookie($key, $user->USERNAME, time() + 2000000000, '/');
+                    break;
+
+                case '_SESSION':
+                    $_SESSION[$key] = $user->USERNAME;
+                    break;
+            }
 
             # SUCCESS-MESSAGE
             $data["process"] = "success";

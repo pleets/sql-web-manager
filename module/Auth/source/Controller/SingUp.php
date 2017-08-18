@@ -78,6 +78,10 @@ class SingUp extends AbstractionController
      */
     public function index()
     {
+        # STANDARD VALIDATIONS [check method]
+        if (!$this->isGet())
+            die('Error 405 (Method Not Allowed)!!');
+
         $this->runAuthentication();
         return [];
     }
@@ -89,9 +93,6 @@ class SingUp extends AbstractionController
      */
     public function attemp()
     {
-        # run authentication
-        $this->runAuthentication();
-
         # data to send
         $data = [];
 
@@ -101,6 +102,21 @@ class SingUp extends AbstractionController
 
         # TRY-CATCH-BLOCK
         try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isPost())
+                die('Error 405 (Method Not Allowed)!!');
+
+            # STANDARD VALIDATIONS [check needed arguments]
+            $needles = ['username', 'email', 'password', 'password_confirm'];
+
+            array_walk($needles, function(&$item) use ($post) {
+                if (!array_key_exists($item, $post))
+                    die("Error 400 (Bad Request)!!");
+            });
+
+            # run authentication
+            $this->runAuthentication();
 
             if ($post["password"] !== $post["password_confirm"])
                 throw new Exception("The password fields are different!", 300);
@@ -160,7 +176,7 @@ class SingUp extends AbstractionController
 
             $data["validator"] = $validator;
 
-            # form validation
+            # STANDARD VALIDATIONS [check argument constraints]
             if (!$validator->isValid())
             {
                 $data["messages"] = $validator->getMessages();
@@ -264,12 +280,24 @@ class SingUp extends AbstractionController
         # data to send
         $data = [];
 
-        # environment settings
-        $token = $_GET["token"];
-        $user  = $_GET["user"];
-
         # TRY-CATCH-BLOCK
         try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isGet())
+                die('Error 405 (Method Not Allowed)!!');
+
+            # STANDARD VALIDATIONS [check needed arguments]
+            $needles = ['token', 'user'];
+
+            array_walk($needles, function(&$item) use ($_GET) {
+                if (!array_key_exists($item, $_GET))
+                    die("Error 400 (Bad Request)!!");
+            });
+
+            # catch arguments
+            $token = $_GET["token"];
+            $user  = $_GET["user"];
 
             $row = $this->getUsersEntity()->select([
                 "USERNAME" => $user,

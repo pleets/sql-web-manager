@@ -11,5 +11,11 @@ ini_set("memory_limit","256M");
 // Run application
 require_once("vendor/autoload.php");
 
-$mvc = new Drone\Mvc\Application(include "config/application.config.php");
-$mvc->run();
+try {
+	$mvc = new Drone\Mvc\Application(include "config/application.config.php");
+	$mvc->run();
+}
+catch (Drone\Mvc\PageNotFoundException $e)
+{
+	die('Error 404 (Page Not Found)!!');
+}
