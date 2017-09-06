@@ -2,15 +2,15 @@
 
 namespace Auth\Controller;
 
-use Drone\Mvc\AbstractionController;
-use Drone\Debug\Catcher;
-use Drone\Dom\Element\Form;
-use Drone\Validator\FormValidator;
-use Drone\Db\TableGateway\EntityAdapter;
-use Zend\Crypt\Password\Bcrypt;
 use Auth\Model\User;
 use Auth\Model\UserTbl;
-use Exception;
+use Drone\Db\TableGateway\EntityAdapter;
+use Drone\Debug\Catcher;
+use Drone\Dom\Element\Form;
+use Drone\Mvc\AbstractionController;
+use Drone\Network\Http;
+use Drone\Validator\FormValidator;
+use Zend\Crypt\Password\Bcrypt;
 
 class SingUp extends AbstractionController
 {
@@ -35,9 +35,9 @@ class SingUp extends AbstractionController
     /**
      * Checks user session and redirect to other module if exists any active session
      *
-     * @return string|null
+     * @return null
      */
-    private function runAuthentication()
+    private function checkSession()
     {
         $config = include 'module/Auth/config/user.config.php';
         $method = $config["authentication"]["method"];
@@ -80,9 +80,15 @@ class SingUp extends AbstractionController
     {
         # STANDARD VALIDATIONS [check method]
         if (!$this->isGet())
-            die('Error 405 (Method Not Allowed)!!');
+        {
+            $http = new Http();
+            $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
 
-        $this->runAuthentication();
+            die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+        }
+
+        $this->checkSession();
+
         return [];
     }
 
@@ -105,21 +111,30 @@ class SingUp extends AbstractionController
 
             # STANDARD VALIDATIONS [check method]
             if (!$this->isPost())
-                die('Error 405 (Method Not Allowed)!!');
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
 
             # STANDARD VALIDATIONS [check needed arguments]
             $needles = ['username', 'email', 'password', 'password_confirm'];
 
             array_walk($needles, function(&$item) use ($post) {
                 if (!array_key_exists($item, $post))
-                    die("Error 400 (Bad Request)!!");
+                {
+                    $http = new Http();
+                    $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                    die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                }
             });
 
-            # run authentication
-            $this->runAuthentication();
+            $this->checkSession();
 
             if ($post["password"] !== $post["password_confirm"])
-                throw new Exception("The password fields are different!", 300);
+                throw new \Drone\Exception\Exception("The password fields are different!", 300);
 
             $components = [
                 "attributes" => [
@@ -180,7 +195,7 @@ class SingUp extends AbstractionController
             if (!$validator->isValid())
             {
                 $data["messages"] = $validator->getMessages();
-                throw new Exception("Form validation errors!", 300);
+                throw new \Drone\Exception\Exception("Form validation errors!", 300);
             }
 
             $row = $this->getUsersEntity()->select([
@@ -188,7 +203,7 @@ class SingUp extends AbstractionController
             ]);
 
             if (count($row))
-                throw new Exception("This username already exists!", 300);
+                throw new \Drone\Exception\Exception("This username already exists!", 300);
 
             $bcrypt = new Bcrypt();
             $securePass = $bcrypt->create($post["password"]);
@@ -233,7 +248,7 @@ class SingUp extends AbstractionController
                 ))
                 {
                     $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->rollback();
-                    throw new Exception("Error trying to send email checking. Try it again later!.");
+                    throw new \Exception("Error trying to send email checking. Try it again later!.");
                 }
             }
 
@@ -245,26 +260,38 @@ class SingUp extends AbstractionController
             # SUCCESS-MESSAGE
             $data["process"] = "success";
         }
-        catch (Exception $e) {
-
-            # ERROR-TRACKING
-            $data["code"] = $e->getCode();
-            $data["process"] = (in_array($e->getCode(), [300])) ? "warning" : "error";
+        catch (\Drone\Exception\Exception $e)
+        {
+            # ERROR-MESSAGE
+            $data["process"] = "warning";
             $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
 
-            if (!in_array($e->getCode(), [300]))
+            if ($errorCode = ($storage->store($e)) === false)
             {
-                $c = new Catcher();
-                $c->setOutput('cache/output.txt');
-
-                if (($id = $c->storeException($e)) === false)
-                {
-                    $errors = $c->getErrors();
-                    echo "<div style='color: red; font-weight: bold'>" .array_shift($errors). "</div><br />";
-                }
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
             }
 
+            # ERROR-MESSAGE
+            $data["process"] = "error";
+            $data["code"]    = $errorCode;
+            $data["message"] = $e->getMessage();
+
             return $data;
+        }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;
@@ -285,14 +312,24 @@ class SingUp extends AbstractionController
 
             # STANDARD VALIDATIONS [check method]
             if (!$this->isGet())
-                die('Error 405 (Method Not Allowed)!!');
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
 
             # STANDARD VALIDATIONS [check needed arguments]
             $needles = ['token', 'user'];
 
             array_walk($needles, function(&$item) use ($_GET) {
                 if (!array_key_exists($item, $_GET))
-                    die("Error 400 (Bad Request)!!");
+                {
+                    $http = new Http();
+                    $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                    die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                }
             });
 
             # catch arguments
@@ -305,12 +342,12 @@ class SingUp extends AbstractionController
             ]);
 
             if (!count($row))
-                throw new Exception("Token has expired or username does not exists!.");
+                throw new \Drone\Exception\Exception("Token has expired or username does not exists!.");
 
             $user = array_shift($row);
 
             if ($user->USER_STATE_ID <> 1)
-                throw new Exception("This email address had verified before!.", 300);
+                throw new \Drone\Exception\Exception("This email address had verified before!.", 300);
 
             $user->USER_STATE_ID = 2;
 
@@ -321,15 +358,65 @@ class SingUp extends AbstractionController
             # SUCCESS-MESSAGE
             $data["process"] = "success";
         }
-        catch (Exception $e) {
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if ($errorCode = ($storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
 
             # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() == 300) ? "warning": "error";
+            $data["process"] = "error";
+            $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
 
             return $data;
         }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
+        }
 
         return $data;
+    }
+
+    private function handleErrors(Array $errors, $method)
+    {
+        if (count($errors))
+        {
+            $errorInformation = "";
+
+            foreach ($errors as $errno => $error)
+            {
+                $errorInformation .=
+                    "<strong style='color: #a94442'>".
+                        $method
+                            . "</strong>: <span style='color: #e24f4c'>{$error}</span> \n<br />";
+            }
+
+            $hd = @fopen('cache/errors.txt', "a");
+
+            if (!$hd || !@fwrite($hd, $errorInformation))
+            {
+                # error storing are not mandatory!
+            }
+            else
+                @fclose($hd);
+
+            $config = include 'config/application.config.php';
+            $dev = $config["environment"]["dev_mode"];
+
+            if ($dev)
+                echo $errorInformation;
+        }
     }
 }

@@ -7,7 +7,7 @@ use Drone\Db\Driver\DriverAdapter;
 class Authentication extends DriverAdapter
 {
     /**
-     * Realiza la autenticación por base de datos
+     * Database authentication
      *
      * @param string $user
      * @param string $pass

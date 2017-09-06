@@ -2,24 +2,24 @@
 
 namespace Auth\Controller;
 
-use Drone\Mvc\AbstractionController;
-use Drone\Dom\Element\Form;
-use Drone\Validator\FormValidator;
+use Auth\Model\User;
 use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
+use Drone\Dom\Element\Form;
+use Drone\Mvc\AbstractionController;
+use Drone\Network\Http;
+use Drone\Validator\FormValidator;
 use Zend\Crypt\Password\Bcrypt;
-use Auth\Model\User;
-use Exception;
 
 class LogIn extends AbstractionController
 {
     /**
-     * @var UsersEntity
+     * @var EntityAdapter
      */
     private $usersEntity;
 
     /**
-     * @return UsersEntity
+     * @return EntityAdapter
      */
     private function getUsersEntity()
     {
@@ -36,7 +36,7 @@ class LogIn extends AbstractionController
      *
      * @return null
      */
-    private function runAuthentication()
+    private function checkSession()
     {
         $config = include 'module/Auth/config/user.config.php';
         $method = $config["authentication"]["method"];
@@ -79,9 +79,15 @@ class LogIn extends AbstractionController
     {
         # STANDARD VALIDATIONS [check method]
         if (!$this->isGet())
-            die('Error 405 (Method Not Allowed)!!');
+        {
+            $http = new Http();
+            $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
 
-        $this->runAuthentication();
+            die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+        }
+
+        $this->checkSession();
+
         return [];
     }
 
@@ -92,43 +98,50 @@ class LogIn extends AbstractionController
      */
     public function attemp()
     {
-        var_dump($_SERVER["REQUEST_METHOD"]);
-
         # data to send
         $data = [];
 
-        # environment settings
-        $post = $this->getPost();           # catch $_POST
-        $this->setTerminal(true);           # set terminal
+        $post = $this->getPost();
+        $this->setTerminal(true);
 
         # TRY-CATCH-BLOCK
         try {
 
             # STANDARD VALIDATIONS [check method]
             if (!$this->isPost())
-                die('Error 405 (Method Not Allowed)!!');
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
 
             # STANDARD VALIDATIONS [check needed arguments]
             $needles = ['username', 'password'];
 
             array_walk($needles, function(&$item) use ($post) {
                 if (!array_key_exists($item, $post))
-                    die("Error 400 (Bad Request)!!");
+                {
+                    $http = new Http();
+                    $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                    die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                }
             });
 
-            $this->runAuthentication();
+            $this->checkSession();
 
             $components = [
                 "attributes" => [
                     "username" => [
-                        "required" => true,
-                        "type"  => "text",
+                        "required"  => true,
+                        "type"      => "text",
                         "minlength" => 4,
                         "maxlength" => 20
                     ],
                     "password" => [
-                        "required" => true,
-                        "type"     => "text",
+                        "required"  => true,
+                        "type"      => "text",
                         "minlength" => 4,
                         "maxlength" => 20
                     ]
@@ -137,7 +150,7 @@ class LogIn extends AbstractionController
 
             $options = [
                 "username" => [
-                    "label"      => "Username",
+                    "label" => "Username",
                     "validators" => [
                         "Alnum"  => ["allowWhiteSpace" => false]
                     ]
@@ -159,7 +172,7 @@ class LogIn extends AbstractionController
             if (!$validator->isValid())
             {
                 $data["messages"] = $validator->getMessages();
-                throw new Exception("Form validation errors!", 300);
+                throw new \Drone\Exception\Exception("Form validation errors!");
             }
 
             $row = $this->getUsersEntity()->select([
@@ -167,7 +180,7 @@ class LogIn extends AbstractionController
             ]);
 
             if (!count($row))
-                throw new Exception("Username or password are incorrect", 300);
+                throw new \Drone\Exception\Exception("Username or password are incorrect");
 
             $user = array_shift($row);
 
@@ -175,12 +188,12 @@ class LogIn extends AbstractionController
             $password = $post["password"];
 
             if ($user->USER_STATE_ID == 1)
-                throw new Exception("User pending of email checking!", 300);
+                throw new \Drone\Exception\Exception("User pending of email checking!");
 
             $bcrypt = new Bcrypt();
 
             if (!$bcrypt->verify($password, $securePass))
-                throw new Exception("Username or password are incorrect", 300);
+                throw new \Drone\Exception\Exception("Username or password are incorrect");
 
             $config = include 'module/Auth/config/user.config.php';
             $key    = $config["authentication"]["key"];
@@ -200,15 +213,71 @@ class LogIn extends AbstractionController
             # SUCCESS-MESSAGE
             $data["process"] = "success";
         }
-        catch (Exception $e) {
+        catch (\Drone\Exception\Exception $e)
+        {
+            # ERROR-MESSAGE
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if ($errorCode = ($storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
 
             # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() == 300) ? "warning": "error";
+            $data["process"] = "error";
+            $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
 
             return $data;
         }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
+        }
 
         return $data;
+    }
+
+    private function handleErrors(Array $errors, $method)
+    {
+        if (count($errors))
+        {
+            $errorInformation = "";
+
+            foreach ($errors as $errno => $error)
+            {
+                $errorInformation .=
+                    "<strong style='color: #a94442'>".
+                        $method
+                            . "</strong>: <span style='color: #e24f4c'>{$error}</span> \n<br />";
+            }
+
+            $hd = @fopen('cache/errors.txt', "a");
+
+            if (!$hd || !@fwrite($hd, $errorInformation))
+            {
+                # error storing are not mandatory!
+            }
+            else
+                @fclose($hd);
+
+            $config = include 'config/application.config.php';
+            $dev = $config["environment"]["dev_mode"];
+
+            if ($dev)
+                echo $errorInformation;
+        }
     }
 }

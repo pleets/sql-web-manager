@@ -3,11 +3,12 @@
 namespace Auth\Controller;
 
 use Drone\Mvc\AbstractionController;
+use Drone\Network\Http;
 
 class LogOut extends AbstractionController
 {
     /**
-     * Deletes the user session
+     * Closes the user session
      *
      * @return null
      */
@@ -15,7 +16,12 @@ class LogOut extends AbstractionController
     {
         # STANDARD VALIDATIONS [check method]
         if (!$this->isGet())
-            die('Error 405 (Method Not Allowed)!!');
+        {
+            $http = new Http();
+            $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+            die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+        }
 
         $config = include 'module/Auth/config/user.config.php';
         $method = $config["authentication"]["method"];
