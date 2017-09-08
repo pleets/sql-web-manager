@@ -1,0 +1,29 @@
+<?php $dev = $this->param('dev_mode'); ?>
+
+<?php if ($dev): ?>
+
+	<div class="alert alert-danger">
+		<strong>
+			<span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span>
+		</strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+<?php else: ?>
+
+	<div class="container-fluid">
+
+		<div class="text-danger" style="float: left; font-size: 50px; margin-right: 10px;">
+			<i class="glyphicon glyphicon-warning-sign"></i>
+		</div>
+
+		<strong class="text-danger">An error has occurred</strong><br />
+
+		<p class="text-justify">
+			The webpage you requested has had a problem, try to access again or contact to system administrator.
+			Use the <strong>back</strong>  button to navigate to last page or close this windows.<br /><br />
+			<strong class="text-danger">Error code: </strong> <?= $this->param("code") ?>
+		</p>
+
+	</div>
+
+<?php endif; ?>

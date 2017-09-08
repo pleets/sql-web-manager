@@ -271,16 +271,20 @@ class SingUp extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
-            if ($errorCode = ($storage->store($e)) === false)
+            if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
                 $this->handleErrors($errors, __METHOD__);
             }
 
-            # ERROR-MESSAGE
-            $data["process"] = "error";
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
 
             return $data;
         }
@@ -358,21 +362,31 @@ class SingUp extends AbstractionController
             # SUCCESS-MESSAGE
             $data["process"] = "success";
         }
+        catch (\Drone\Exception\Exception $e)
+        {
+            # ERROR-MESSAGE
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
         catch (\Exception $e)
         {
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
-            if ($errorCode = ($storage->store($e)) === false)
+            if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
                 $this->handleErrors($errors, __METHOD__);
             }
 
-            # ERROR-MESSAGE
-            $data["process"] = "error";
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
 
             return $data;
         }

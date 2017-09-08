@@ -95,28 +95,6 @@
 		<?php endforeach; ?>
 	<?php endif; ?>
 
-<?php elseif ($this->param("process") == "error"): ?>
-
-	<div class="ui negative message">
-		<div class="header">
-			Error!
-		</div>
-		<p>
-			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
-		</p>
-	</div>
-
-<?php else: ?>
-
-	<div class="ui negative message">
-		<div class="header">
-			Error!
-		</div>
-		<p>
-			<strong><i class="warning sign icon"></i></strong> Server response not found!
-		</p>
-	</div>
-
 <?php endif; ?>
 
 <script type="text/javascript">

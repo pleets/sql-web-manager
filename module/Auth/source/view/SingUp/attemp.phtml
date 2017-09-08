@@ -45,16 +45,4 @@
 		<?php endforeach; ?>
 	<?php endif; ?>
 
-<?php elseif ($this->param("process") == "error"): ?>
-
-	<div class="alert alert-danger">
-		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
-	</div>
-
-<?php else: ?>
-
-	<div class="alert alert-danger">
-		<strong><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span></strong> &nbsp;Unknown error
-	</div>
-
 <?php endif; ?>

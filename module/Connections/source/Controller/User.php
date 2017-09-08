@@ -157,11 +157,19 @@ class User extends AbstractionController
         $data = array();
 
         # environment settings
-        $post = $this->getPost();           # catch $_POST
         $this->setTerminal(true);           # set terminal
 
         # TRY-CATCH-BLOCK
         try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isPost())
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
 
             $data["connections"] = $this->getUserConnectionEntity()->select([
                 "USER_ID" => $this->getIdentity()
@@ -170,13 +178,42 @@ class User extends AbstractionController
             # SUCCESS-MESSAGE
             $data["process"] = "success";
         }
-        catch (Exception $e)
+        catch (\Drone\Exception\Exception $e)
         {
             # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() != 300) ? "error" : "warning";
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
+
+            $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
 
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
+
             return $data;
+        }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;
@@ -199,7 +236,7 @@ class User extends AbstractionController
         # TRY-CATCH-BLOCK
         try {
 
-            if (!$this->isPost())
+            if ($this->isGest())
             {
                 $types = $data["types"] = $this->getConnectionTypesEntity()->select([]);
 
@@ -222,8 +259,21 @@ class User extends AbstractionController
                 # SUCCESS-MESSAGE
                 $data["process"] = "register-form";
             }
-            else
+            else if ($this->isPost())
             {
+                # STANDARD VALIDATIONS [check needed arguments]
+                $needles = ['field', 'type', 'aliasname'];
+
+                array_walk($needles, function(&$item) use ($post) {
+                    if (!array_key_exists($item, $post))
+                    {
+                        $http = new Http();
+                        $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                        die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                    }
+                });
+
                 $components = [
                     "attributes" => [
                         "type" => [
@@ -310,22 +360,50 @@ class User extends AbstractionController
                 # SUCCESS-MESSAGE
                 $data["process"] = "process-response";
             }
+            else
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
 
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
         }
-        catch (Exception $e)
+        catch (\Drone\Exception\Exception $e)
         {
             # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() != 300) ? "error" : "warning";
+            $data["process"] = "warning";
             $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
 
-            if ($e->getCode() !== 300)
+            if (($errorCode = $storage->store($e)) === false)
             {
-                $c = new Catcher();
-                $c->setOutput('cache/output.txt');
-                $c->storeException($e);
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
             }
 
+            $data["code"]    = $errorCode;
+            $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
+
             return $data;
+        }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;
@@ -349,8 +427,21 @@ class User extends AbstractionController
         # TRY-CATCH-BLOCK
         try {
 
-            if (!$this->isPost())
+            if ($this->isGet())
             {
+                # STANDARD VALIDATIONS [check needed arguments]
+                $needles = ['id'];
+
+                array_walk($needles, function(&$item) use ($get) {
+                    if (!array_key_exists($item, $get))
+                    {
+                        $http = new Http();
+                        $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                        die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                    }
+                });
+
                 $types = $data["types"] = $this->getConnectionTypesEntity()->select([]);
 
                 $fields = $this->getConnectionFieldsEntity()->select([]);
@@ -390,8 +481,21 @@ class User extends AbstractionController
                 # SUCCESS-MESSAGE
                 $data["process"] = "update-form";
             }
-            else
+            else if ($this->isPost())
             {
+                # STANDARD VALIDATIONS [check needed arguments]
+                $needles = ['_conn_id', 'type', 'aliasname'];
+
+                array_walk($needles, function(&$item) use ($post) {
+                    if (!array_key_exists($item, $post))
+                    {
+                        $http = new Http();
+                        $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                        die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                    }
+                });
+
                 $components = [
                     "attributes" => [
                         "type" => [
@@ -443,7 +547,7 @@ class User extends AbstractionController
                 if (!$validator->isValid())
                 {
                     $data["messages"] = $validator->getMessages();
-                    throw new Exception("Form validation errors!", 300);
+                    throw new \Drone\Exception\Exception("Form validation errors!");
                 }
 
                 $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
@@ -485,24 +589,83 @@ class User extends AbstractionController
                 # SUCCESS-MESSAGE
                 $data["process"] = "process-response";
             }
+            else
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
 
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
         }
-        catch (Exception $e)
+        catch (\Drone\Exception\Exception $e)
         {
             # ERROR-MESSAGE
-            $data["process"] = ($e->getCode() != 300) ? "error" : "warning";
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
+
+            $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
 
-            if ($e->getCode() !== 300)
-            {
-                $c = new Catcher();
-                $c->setOutput('cache/output.txt');
-                $c->storeException($e);
-            }
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
 
             return $data;
         }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $this->handleErrors($dbErrors, __METHOD__);
+        }
 
         return $data;
+    }
+
+    private function handleErrors(Array $errors, $method)
+    {
+        if (count($errors))
+        {
+            $errorInformation = "";
+
+            foreach ($errors as $errno => $error)
+            {
+                $errorInformation .=
+                    "<strong style='color: #a94442'>".
+                        $method
+                            . "</strong>: <span style='color: #e24f4c'>{$error}</span> \n<br />";
+            }
+
+            $hd = @fopen('cache/errors.txt', "a");
+
+            if (!$hd || !@fwrite($hd, $errorInformation))
+            {
+                # error storing are not mandatory!
+            }
+            else
+                @fclose($hd);
+
+            $config = include 'config/application.config.php';
+            $dev = $config["environment"]["dev_mode"];
+
+            if ($dev)
+                echo $errorInformation;
+        }
     }
 }
