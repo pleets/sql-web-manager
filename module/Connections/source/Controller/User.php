@@ -3,18 +3,17 @@
 namespace Connections\Controller;
 
 use Drone\Mvc\AbstractionController;
-use Drone\Debug\Catcher;
 use Drone\Dom\Element\Form;
 use Drone\Validator\FormValidator;
 use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
+use Drone\Network\Http;
 use Auth\Model\User as UserModel;
 use Connections\Model\ConnectionType;
 use Connections\Model\ConnectionTypeField;
 use Connections\Model\UserConnection;
 use Connections\Model\UserConnectionsTable;
 use Connections\Model\UserConnectionDetails;
-use Exception;
 
 class User extends AbstractionController
 {
@@ -163,7 +162,7 @@ class User extends AbstractionController
         try {
 
             # STANDARD VALIDATIONS [check method]
-            if (!$this->isPost())
+            if (!$this->isGet())
             {
                 $http = new Http();
                 $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
@@ -212,7 +211,7 @@ class User extends AbstractionController
          */
         finally
         {
-            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
             $this->handleErrors($dbErrors, __METHOD__);
         }
 
@@ -236,7 +235,7 @@ class User extends AbstractionController
         # TRY-CATCH-BLOCK
         try {
 
-            if ($this->isGest())
+            if ($this->isGet())
             {
                 $types = $data["types"] = $this->getConnectionTypesEntity()->select([]);
 
@@ -325,7 +324,7 @@ class User extends AbstractionController
                 if (!$validator->isValid())
                 {
                     $data["messages"] = $validator->getMessages();
-                    throw new Exception("Form validation errors!", 300);
+                    throw new \Drone\Exception\Exception("Form validation errors!", 300);
                 }
 
                 $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
@@ -402,7 +401,7 @@ class User extends AbstractionController
          */
         finally
         {
-            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
             $this->handleErrors($dbErrors, __METHOD__);
         }
 
@@ -631,7 +630,7 @@ class User extends AbstractionController
          */
         finally
         {
-            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
             $this->handleErrors($dbErrors, __METHOD__);
         }
 

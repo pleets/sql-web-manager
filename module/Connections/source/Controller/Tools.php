@@ -12,9 +12,9 @@ use Connections\Model\UserConnectionsTable;
 use Connections\Model\UserConnectionDetails;
 use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
-use Drone\Debug\Catcher;
 use Drone\Dom\Element\Form;
 use Drone\Mvc\AbstractionController;
+use Drone\Network\Http;
 use Drone\Validator\FormValidator;
 use Utils\Model\Entity as EntityMd;
 
@@ -228,6 +228,54 @@ class Tools extends AbstractionController
             }
             else
             {
+                # STANDARD VALIDATIONS [check needed arguments]
+                $needles = ['field', 'type'];
+
+                array_walk($needles, function(&$item) use ($post) {
+                    if (!array_key_exists($item, $post))
+                    {
+                        $http = new Http();
+                        $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                        die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                    }
+                });
+
+                $components = [
+                    "attributes" => [
+                        "field" => [
+                            "required"  => true,
+                        ],
+                        "type" => [
+                            "required"  => true,
+                        ]
+                    ],
+                ];
+
+                $options = [
+                    "field" => [
+                        "label" => "Value of connection parameter"
+                    ],
+                    "type" => [
+                        "label"      => "Type of connection parameter"
+                    ]
+                ];
+
+                $form = new Form($components);
+                $form->fill($post);
+
+                $validator = new FormValidator($form, $options);
+                $validator->validate();
+
+                $data["validator"] = $validator;
+
+                # STANDARD VALIDATIONS [check argument constraints]
+                if (!$validator->isValid())
+                {
+                    $data["messages"] = $validator->getMessages();
+                    throw new \Drone\Exception\Exception("Form validation errors!");
+                }
+
                 $id = 0;
 
                 foreach ($post['field'][$post["type"]] as $field_number => $field_value)
