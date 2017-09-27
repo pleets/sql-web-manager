@@ -590,8 +590,11 @@ class Tools extends AbstractionController
          */
         finally
         {
-            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-            $this->handleErrors($dbErrors, __METHOD__);
+            if (!is_null($this->identifiersEntity))
+            {
+                $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+                $this->handleErrors($dbErrors, __METHOD__);
+            }
         }
 
         return $data;
