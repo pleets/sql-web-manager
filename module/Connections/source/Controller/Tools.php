@@ -465,6 +465,8 @@ class Tools extends AbstractionController
 
             try {
 
+                $connError = false;
+
                 $entity = new EntityMd([]);
                 $entity->setConnectionIdentifier("CONN" . $id);
 
@@ -478,6 +480,30 @@ class Tools extends AbstractionController
                 $auth = $driverAdapter;
 
                 $data["results"] = $auth->getDb()->execute($sql_text);
+            }
+            # encapsulate real connection error!
+            catch (\Drone\Db\Driver\Exception\ConnectionException $e)
+            {
+                $connError = true;
+
+                $file = str_replace('\\', '', __CLASS__);
+                $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+                if (($errorCode = $storage->store($e)) === false)
+                {
+                    $errors = $storage->getErrors();
+                    $this->handleErrors($errors, __METHOD__);
+                }
+
+                $data["code"]    = $errorCode;
+                $data["message"] = "Could not connect to database!";
+
+                # to identify development mode
+                $config = include 'config/application.config.php';
+                $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+                # redirect view
+                $this->setMethod('error');
             }
             catch (\Exception $e)
             {
@@ -496,36 +522,39 @@ class Tools extends AbstractionController
 
             $data["time"] = round($elapsed_time, 4);
 
-            $data["num_rows"]      = $auth->getDb()->getNumRows();
-            $data["num_fields"]    = $auth->getDb()->getNumFields();
-            $data["rows_affected"] = $auth->getDb()->getRowsAffected();
-
-            $rows = $auth->getDb()->getArrayResult();
-
-            $data["data"] = [];
-
-            # data parsing
-            foreach ($rows as $key => $row)
+            if (!$connError)
             {
-                $data["data"][$key] = [];
+                $data["num_rows"]      = $auth->getDb()->getNumRows();
+                $data["num_fields"]    = $auth->getDb()->getNumFields();
+                $data["rows_affected"] = $auth->getDb()->getRowsAffected();
 
-                foreach ($row as $column => $value)
+                $rows = $auth->getDb()->getArrayResult();
+
+                $data["data"] = [];
+
+                # data parsing
+                foreach ($rows as $key => $row)
                 {
-                    if (gettype($value) == 'object')
+                    $data["data"][$key] = [];
+
+                    foreach ($row as $column => $value)
                     {
-                        if  (get_class($value) == 'OCI-Lob')
-                            $data["data"][$key][$column] = $value->load();
-                        else
+                        if (gettype($value) == 'object')
+                        {
+                            if  (get_class($value) == 'OCI-Lob')
+                                $data["data"][$key][$column] = $value->load();
+                            else
+                                $data["data"][$key][$column] = $value;
+                        }
+                        else {
                             $data["data"][$key][$column] = $value;
-                    }
-                    else {
-                        $data["data"][$key][$column] = $value;
+                        }
                     }
                 }
-            }
 
-            # SUCCESS-MESSAGE
-            $data["process"] = "success";
+                # SUCCESS-MESSAGE
+                $data["process"] = "success";
+            }
         }
         catch (\Drone\Exception\Exception $e)
         {
