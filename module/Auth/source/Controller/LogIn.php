@@ -175,8 +175,12 @@ class LogIn extends AbstractionController
                 throw new \Drone\Exception\Exception("Form validation errors!");
             }
 
+            $config = include 'module/Auth/config/user.config.php';
+            $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
+            $password_str = $config["authentication"]["gateway"]["credentials"]["password"];
+
             $row = $this->getUsersEntity()->select([
-                "USERNAME" => $post["username"]
+                "$username_str" => $post["username"]
             ]);
 
             if (!count($row))
@@ -184,7 +188,7 @@ class LogIn extends AbstractionController
 
             $user = array_shift($row);
 
-            $securePass = $user->USER_PASSWORD;
+            $securePass = $user->{$password_str};
             $password = $post["password"];
 
             if ($user->USER_STATE_ID == 1)
@@ -195,7 +199,6 @@ class LogIn extends AbstractionController
             if (!$bcrypt->verify($password, $securePass))
                 throw new \Drone\Exception\Exception("Username or password are incorrect");
 
-            $config = include 'module/Auth/config/user.config.php';
             $key    = $config["authentication"]["key"];
             $method = $config["authentication"]["method"];
 

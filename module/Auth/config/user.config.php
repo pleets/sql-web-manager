@@ -11,8 +11,15 @@ return [
 		],
 	],
 	"authentication" => [
-		"method" => "_COOKIE",
-		"key"    => "session_id"
+		"method"  => "_COOKIE",
+		"key"     => "session_id",
+		"gateway" => [
+			"entity" => "SWM_USERS",
+			"credentials" => [
+				"username" => "USERNAME",
+				"password" => "USER_PASSWORD"
+			]
+		]
 	],
-	"redirect" => "Dashboard",
+	"redirect" => "Dashboard"
 ];

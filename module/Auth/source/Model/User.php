@@ -49,6 +49,10 @@ class User extends Entity
     public function __construct($data = [])
     {
     	parent::__construct($data);
-        $this->setTableName("SWM_USERS");
+
+		$config = include 'module/Auth/config/user.config.php';
+		$table  = $config["authentication"]["gateway"]["entity"];
+
+        $this->setTableName($table);
     }
 }
