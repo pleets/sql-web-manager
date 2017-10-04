@@ -509,9 +509,11 @@ class Tools extends AbstractionController
             {
                 $err = $driverAdapter->getDb()->getErrors();
 
+                $error = (count($err)) ? array_shift($err) : $e->getMessage();
+
                 # SUCCESS-MESSAGE
                 $data["process"] = "error";
-                $data["message"] = array_shift($err);
+                $data["message"] = $error;
 
                 return $data;
             }
