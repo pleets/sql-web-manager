@@ -173,6 +173,9 @@ class Tools extends AbstractionController
      */
     public function testConnection()
     {
+        clearstatcache();
+        session_write_close();
+
         # data to send
         $data = [];
 
@@ -386,6 +389,9 @@ class Tools extends AbstractionController
      */
     public function execute()
     {
+        clearstatcache();
+        session_write_close();
+
         # data to send
         $data = [];
 

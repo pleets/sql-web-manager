@@ -225,6 +225,9 @@ class User extends AbstractionController
      */
     public function addConnection()
     {
+        clearstatcache();
+        session_write_close();
+
         # data to send
         $data = array();
 
@@ -415,6 +418,9 @@ class User extends AbstractionController
      */
     public function editConnection()
     {
+        clearstatcache();
+        session_write_close();
+
         # data to send
         $data = array();
 
