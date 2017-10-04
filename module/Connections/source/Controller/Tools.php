@@ -224,12 +224,11 @@ class Tools extends AbstractionController
                             $dbconfig[$identifier->CONN_IDENTI_NAME] = $field->FIELD_VALUE;
                     }
                 }
-
             }
             else
             {
                 # STANDARD VALIDATIONS [check needed arguments]
-                $needles = ['field', 'type'];
+                $needles = ['type', 'aliasname'];
 
                 array_walk($needles, function(&$item) use ($post) {
                     if (!array_key_exists($item, $post))
@@ -243,21 +242,21 @@ class Tools extends AbstractionController
 
                 $components = [
                     "attributes" => [
-                        "field" => [
+                        "type" => [
                             "required"  => true,
                         ],
-                        "type" => [
+                        "aliasname" => [
                             "required"  => true,
                         ]
                     ],
                 ];
 
                 $options = [
-                    "field" => [
+                    "type" => [
                         "label" => "Value of connection parameter"
                     ],
-                    "type" => [
-                        "label"      => "Type of connection parameter"
+                    "aliasname" => [
+                        "label" => "Type of connection parameter"
                     ]
                 ];
 
@@ -298,11 +297,12 @@ class Tools extends AbstractionController
             }
             catch (\Exception $e)
             {
-                $err = $driverAdapter->getDb()->getErrors();
+                $err   = $driverAdapter->getDb()->getErrors();
+                $error = (count($err)) ? array_shift($err) : $e->getMessage();
 
                 # SUCCESS-MESSAGE
                 $data["process"] = "error";
-                $data["message"] = array_shift($err);
+                $data["message"] = $error;
 
                 return $data;
             }
@@ -507,8 +507,7 @@ class Tools extends AbstractionController
             }
             catch (\Exception $e)
             {
-                $err = $driverAdapter->getDb()->getErrors();
-
+                $err   = $driverAdapter->getDb()->getErrors();
                 $error = (count($err)) ? array_shift($err) : $e->getMessage();
 
                 # SUCCESS-MESSAGE
