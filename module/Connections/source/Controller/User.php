@@ -171,7 +171,8 @@ class User extends AbstractionController
             }
 
             $data["connections"] = $this->getUserConnectionEntity()->select([
-                "USER_ID" => $this->getIdentity()
+                "USER_ID" => $this->getIdentity(),
+                "STATE"   => "A"
             ]);
 
             # SUCCESS-MESSAGE
@@ -213,6 +214,166 @@ class User extends AbstractionController
         {
             $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
             $this->handleErrors($dbErrors, __METHOD__);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Deletes a connection
+     *
+     * @return array
+     */
+    public function deleteConnection()
+    {
+        clearstatcache();
+        session_write_close();
+
+        # data to send
+        $data = array();
+
+        # environment settings
+        $post = $this->getPost();           # catch $_POST
+        $this->setTerminal(true);           # set terminal
+
+        # TRY-CATCH-BLOCK
+        try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isPost())
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
+
+            # STANDARD VALIDATIONS [check needed arguments]
+            $needles = ['id'];
+
+            array_walk($needles, function(&$item) use ($post) {
+                if (!array_key_exists($item, $post))
+                {
+                    $http = new Http();
+                    $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                    die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                }
+            });
+
+            $components = [
+                "attributes" => [
+                    "id" => [
+                        "required"  => true,
+                        "type"      => "number"
+                    ]
+                ],
+            ];
+
+            $options = [
+                "id" => [
+                    "label" => "Id"
+                ]
+            ];
+
+            $form = new Form($components);
+            $form->fill($post);
+
+            $validator = new FormValidator($form, $options);
+            $validator->validate();
+
+            $data["validator"] = $validator;
+
+            # form validation
+            if (!$validator->isValid())
+            {
+                $data["messages"] = $validator->getMessages();
+                throw new \Drone\Exception\Exception("Form validation errors!", 300);
+            }
+
+            $connection = $this->getUserConnectionEntity()->select([
+                "USER_CONN_ID" => $post["id"]
+            ]);
+
+            if (!count($connection))
+                throw new \Exception("The Connection does not exists!");
+
+            $connection = array_shift($connection);
+
+            if ($connection->STATE == 'I')
+                throw new \Drone\Exception\Exception("This connection is already deleted!", 300);
+
+            $connection->exchangeArray([
+                "STATE" =>  'I'
+            ]);
+
+            $this->getUserConnectionEntity()->update($connection, [
+                "USER_CONN_ID" => $post["id"]
+            ]);
+
+            $data["id"] = $post["id"];
+
+            # SUCCESS-MESSAGE
+            $data["process"] = "success";
+        }
+        catch (\Drone\Exception\Exception $e)
+        {
+            # ERROR-MESSAGE
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
+        # encapsulate real connection error!
+        catch (\Drone\Db\Driver\Exception\ConnectionException $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
+
+            $data["code"]    = $errorCode;
+            $data["message"] = "Could not connect to database!";
+
+            # redirect view
+            $this->setMethod('error');
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+                $this->handleErrors($errors, __METHOD__);
+            }
+
+            $data["code"]    = $errorCode;
+            $data["message"] = $e->getMessage();
+
+            # redirect view
+            $this->setMethod('error');
+
+            return $data;
+        }
+        /*
+         * Extra information about errors!
+         * keep in mind that some errors are not throwed, i.e. are not exceptions.
+         */
+        finally
+        {
+            # to identify development mode
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            if (!is_null($this->userConnectionEntity))
+            {
+                $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
+                $this->handleErrors($dbErrors, __METHOD__);
+            }
         }
 
         return $data;
@@ -308,10 +469,7 @@ class User extends AbstractionController
                         ],
                     ],
                     "field" => [
-                        "label"      => "Connection Param",
-                        /*"validators" => [
-                            "Alnum"  => ["allowWhiteSpace" => false]
-                        ],*/
+                        "label"      => "Connection Param"
                     ],
                 ];
 
@@ -339,7 +497,8 @@ class User extends AbstractionController
                     "USER_CONN_ID"    => $user_conn_id,
                     "USER_ID"         => $this->getIdentity(),
                     "CONN_TYPE_ID"    => $post["type"],
-                    "CONNECTION_NAME" => $post["aliasname"]
+                    "CONNECTION_NAME" => $post["aliasname"],
+                    "STATE"           =>  'A'
                 ]);
 
                 $this->getUserConnectionEntity()->insert($userConnection);
@@ -469,6 +628,14 @@ class User extends AbstractionController
                     "USER_CONN_ID" => $get["id"]
                 ]);
 
+                if (!count($connection))
+                    throw new \Exception("The Connection does not exists!");
+
+                $connection = array_shift($connection);
+
+                if ($connection->STATE == 'I')
+                    throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+
                 $connection_details = $this->getUserConnectionDetailsEntity()->select([
                     "USER_CONN_ID" => $get["id"]
                 ]);
@@ -480,7 +647,7 @@ class User extends AbstractionController
                     $_connection_details[$details->CONN_IDENTI_ID] = $details;
                 }
 
-                $data["connection"] = array_shift($connection);
+                $data["connection"] = $connection;
                 $data["connection_details"] = $_connection_details;
 
                 # SUCCESS-MESSAGE
@@ -534,9 +701,6 @@ class User extends AbstractionController
                     ],
                     "field" => [
                         "label"      => "Connection Param",
-                        /*"validators" => [
-                            "Alnum"  => ["allowWhiteSpace" => false]
-                        ],*/
                     ],
                 ];
 
@@ -561,7 +725,13 @@ class User extends AbstractionController
                     "USER_CONN_ID"    => $post["_conn_id"],
                 ]);
 
+                if (!count($userConnection))
+                    throw new \Exception("The Connection does not exists!");
+
                 $userConnection = array_shift($userConnection);
+
+                if ($userConnection->STATE == 'I')
+                    throw new \Drone\Exception\Exception("This connection was deleted!", 300);
 
                 $userConnection->exchangeArray([
                     "CONN_TYPE_ID"    => $post["type"],

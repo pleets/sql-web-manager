@@ -16,7 +16,7 @@
 		<div class="ui grid">
 			<div class="three wide column">
 				<div class="ui icon buttons">
-					<button class="ui button" data-toggle="modal" data-target="#md-eliminar-frontera"
+					<button class="ui button" data-toggle="modal"
 							data-url="<?= $this->basePath() ?>/public/Connections/User/addConnection" title="Add connection"
 							data-role="ajax-request" data-type="get" data-response="#add-connection-response"
 							data-callback="v = {
@@ -55,6 +55,13 @@
 		<div class="header">Add connection</div>
 		<div class="content">
 			<div id="add-connection-response"></div>
+		</div>
+	</div>
+
+	<div class="ui modal" id="md-delete-connection">
+		<div class="header">Delete connection</div>
+		<div class="content">
+			<div id="delete-connection-response"></div>
 		</div>
 	</div>
 

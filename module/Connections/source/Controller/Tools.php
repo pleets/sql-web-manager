@@ -430,7 +430,13 @@ class Tools extends AbstractionController
                 "USER_CONN_ID" => $id
             ]);
 
+            if (!count($connection))
+                throw new \Exception("The Connection does not exists!");
+
             $connection = array_shift($connection);
+
+            if ($connection->STATE == 'I')
+                throw new \Drone\Exception\Exception("This connection was deleted!", 300);
 
             $details = $this->getUserConnectionDetailsEntity()->select([
                 "USER_CONN_ID" => $id

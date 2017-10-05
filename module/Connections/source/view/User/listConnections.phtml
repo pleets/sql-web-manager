@@ -12,7 +12,13 @@
 							<div class="item btn-new-worksheet" data-id="<?= $connection->USER_CONN_ID ?>" data-name="<?= $connection->CONNECTION_NAME ?>">
 								<i class="icon terminal"></i> New Worksheet
 							</div>
-							<div class="item"><i class="icon trash"></i> Delete</div>
+							<div class="item" data-role="ajax-request" data-response="#delete-connection-response" data-type="post"
+								 data-url="<?= $this->basePath() ?>/public/Connections/User/deleteConnection"
+								 data-object="v = { id: '<?= $connection->USER_CONN_ID ?>' }"
+								 data-callback="v = {
+									before: function() { $('#md-delete-connection').modal('show'); },
+									success: function() { $('#md-delete-connection').modal('refresh'); },
+								 }"><i class="icon trash"></i> Delete</div>
 						</div>
 					</div>
 			    </div>
