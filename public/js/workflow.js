@@ -37,6 +37,8 @@ $(function(){
         content.load(content.attr("data-resource"), { id: n, conn: id_conn });
 
         $('.menu .item').tab();
+
+        $(title).trigger('click');
     });
 
     $('.menu .item').tab();
