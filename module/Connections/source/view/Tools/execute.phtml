@@ -1,32 +1,78 @@
 <?php if ($this->param("process") == "success"): ?>
 
-	<?php $data = $this->param("data"); ?>
+	<?php
+		$worksheet = $this->param("worksheet");
+		$selectStm = $this->param("selectStm");
+		$data      = $this->param("data");
+		$uniqid    = uniqid();
+	?>
 
     <?php if (count($data)): ?>
-    	<div class="sql-data" style="height: 180px; overflow: auto;">
+    	<div class="sql-data" style="height: 180px; overflow: auto; padding-left: 15px" id="<?= $uniqid ?>">
 			<table class="ui very compact celled collapsing table">
 				<thead>
 					<?php $column_names = $data[0]; ?>
 					<tr>
+						<?php $i = 1; ?>
 						<?php foreach($column_names as $key => $row): ?>
 							<?php if (!is_numeric($key)): ?>
-								<th><?= $key ?></th>
+								<th><?= ($i != 1) ? $key : "#" ?></th>
+								<?php $i++; ?>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					</tr>
 				</thead>
 				<tbody>
+					<?php
+						# do not show direcly ROW_NUM from resultset, for some reason in mysql
+						# (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM returns null.
+						$row_num = 1;
+					?>
 					<?php foreach($data as $row): ?>
 						<tr>
 							<?php for ($i = 0; $i < count($data[0]) / 2; $i++): ?>
-								<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
-								<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
+								<?php if ($i == 0): ?>
+									<td><div class="ui ribbon label"><?= $row_num ?></div></td>
+								<?php else: ?>
+									<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
+									<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
+								<?php endif; ?>
 							<?php endfor; ?>
 						</tr>
+						<?php $row_num++; ?>
 					<?php endforeach; ?>
 				</tbody>
 			</table>
     	</div>
+
+		<script type="text/javascript">
+
+			/* updates worksheet with last query results */
+			<?php if ($selectStm): ?>
+
+				var btnContinue = $("#frm-sql-<?= $worksheet ?> button#continue-statement-<?= $worksheet ?>");
+				var object = eval(btnContinue.attr("data-object"));
+
+				object.row_start = <?= $this->param('row_start') ?>;
+				object.row_end = <?= $this->param('row_end') ?>;
+				object.num_rows = <?= $this->param('num_rows') ?>;
+				object.time = <?= $this->param('time') ?>;
+				object.sql = '<?= $this->param('sql') ?>';
+
+				btnContinue.attr("data-object", "v = " + JSON.stringify(object));
+
+		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', (event) => {
+
+			        element = $("#<?= $uniqid ?>")[0];
+
+			        if (element.scrollHeight - element.scrollTop < 200)
+			        	$('#continue-statement-<?= $worksheet ?>').trigger('click');
+
+			    }, false);
+
+			<?php endif; ?>
+
+		</script>
 
     <?php else: ?>
     	<div class="alert alert-warning">
@@ -34,12 +80,12 @@
     	</div>
    	<?php endif ?>
 
-		<br />
-    	<strong><?= $this->param('num_rows') ?></strong> rows!.<br />
-    	<strong><?= $this->param('num_fields') ?></strong> fields.<br />
-    	<strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br />
-    	<strong><?= $this->param('time') ?></strong> seconds!.<br />
-		<br /><br />
+		<div style="padding-top: 10px" id="log-<?= $worksheet ?>">
+	    	<strong><?= $this->param('num_rows') ?></strong> rows!.<br />
+	    	<strong><?= $this->param('num_fields') ?></strong> fields.<br />
+	    	<strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br />
+	    	<strong><?= $this->param('time') ?></strong> seconds!.<br />
+		</div>
 
 <?php elseif ($this->param("process") == "warning"): ?>
 

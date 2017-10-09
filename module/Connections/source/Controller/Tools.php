@@ -412,7 +412,7 @@ class Tools extends AbstractionController
             }
 
             # STANDARD VALIDATIONS [check needed arguments]
-            $needles = ['conn'];
+            $needles = ['conn', 'worksheet'];
 
             array_walk($needles, function(&$item) use ($post) {
                 if (!array_key_exists($item, $post))
@@ -423,6 +423,8 @@ class Tools extends AbstractionController
                     die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
                 }
             });
+
+            $data["worksheet"] = $post["worksheet"];
 
             $id = $post["conn"];
 
@@ -456,6 +458,7 @@ class Tools extends AbstractionController
             }
 
             $sql_text = $post["sql"];
+            $data["sql"] = $post["sql"];
 
             /*
              * SQL parsing
@@ -473,6 +476,107 @@ class Tools extends AbstractionController
 
                 if ($end_stament == ';')
                     $sql_text = strstr($sql_text, ';', true);
+            }
+
+            # indicates if SQL is a selection statement
+            $data["selectStm"] = false;
+
+            # detect selection
+            if (preg_match('/^SELECT/i', $sql_text))
+            {
+                $data["selectStm"] = true;
+
+                $step = 5;
+
+                switch (strtolower($dbconfig["driver"]))
+                {
+                    case 'mysqli':
+
+                        $row_start = 0;
+                        $row_end   = $step;
+
+                        break;
+
+                    case 'oci8':
+
+                        $row_start = 1;
+                        $row_end   = $step;
+
+                        break;
+
+                    default:
+                        # code...
+                        break;
+                }
+
+                if (array_key_exists('row_start', $post) && array_key_exists('row_end', $post))
+                {
+                    $components = [
+                        "attributes" => [
+                            "row_start" => [
+                                "required" => true,
+                                "type"     => "number",
+                                "min"      => 0
+                            ],
+                            "row_end" => [
+                                "required" => true,
+                                "type"     => "number",
+                                "min"      => 0
+                            ],
+                        ],
+                    ];
+
+                    $options = [
+                        "row_start" => [
+                            "label" => "Start row",
+                        ],
+                        "row_end" => [
+                            "label" => "End row",
+                        ],
+                    ];
+
+                    $form = new Form($components);
+                    $form->fill($post);
+
+                    $validator = new FormValidator($form, $options);
+                    $validator->validate();
+
+                    # STANDARD VALIDATIONS [check argument constraints]
+                    if (!$validator->isValid())
+                    {
+                        $http = new Http();
+                        $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                        die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                    }
+
+                    $row_start = $post["row_start"] + $step;
+                    $row_end   = $post["row_end"] + $step;
+                }
+
+                switch (strtolower($dbconfig["driver"]))
+                {
+                    case 'mysqli':
+
+                        $sql_text = "SELECT (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM, V.* FROM (
+                                        " . $sql_text . "
+                                    ) V LIMIT $row_start, $row_end";
+                        break;
+
+                    case 'oci8':
+
+                        $sql_text = "SELECT * FROM (
+                                        SELECT ROWNUM ROW_NUM, V.* FROM (" . $sql_text . ") V
+                                    ) VV WHERE VV.ROW_NUM BETWEEN $row_start AND $row_end";
+                        break;
+
+                    default:
+                        # code...
+                        break;
+                }
+
+                $data["row_start"] = $row_start;
+                $data["row_end"]   = $row_end;
             }
 
             try {
@@ -541,6 +645,13 @@ class Tools extends AbstractionController
                 $data["num_fields"]    = $auth->getDb()->getNumFields();
                 $data["rows_affected"] = $auth->getDb()->getRowsAffected();
 
+                # cumulative results
+                if ($data["selectStm"] && array_key_exists('num_rows', $post) && array_key_exists('time', $post))
+                {
+                    $data["num_rows"] += $post["num_rows"];
+                    $data["time"]     += $post["time"];
+                }
+
                 $rows = $auth->getDb()->getArrayResult();
 
                 $data["data"] = [];
@@ -564,6 +675,10 @@ class Tools extends AbstractionController
                         }
                     }
                 }
+
+                # redirect view
+                if ($row_start > 1)
+                    $this->setMethod('nextResults');
 
                 # SUCCESS-MESSAGE
                 $data["process"] = "success";

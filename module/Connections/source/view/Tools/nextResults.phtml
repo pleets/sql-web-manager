@@ -1,0 +1,49 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<?php
+		$worksheet = $this->param("worksheet");
+		$data      = $this->param("data");
+
+		$row_start = $this->param('row_start');
+		$row_end   = $this->param('row_end');
+
+		$row_num   = $row_start;
+	?>
+
+    <?php if (count($data)): ?>
+		<?php foreach($data as $row): ?>
+			<?php $row_num++; ?>
+			<tr>
+				<?php for ($i = 0; $i < count($data[0]) / 2; $i++): ?>
+					<?php if ($i == 0): ?>
+						<td><div class="ui ribbon label"><?= $row_num ?></div></td>
+					<?php else: ?>
+						<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
+						<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
+					<?php endif; ?>
+				<?php endfor; ?>
+			</tr>
+		<?php endforeach; ?>
+
+		<script type="text/javascript">
+
+			/* updates worksheet with last query results */
+
+			var btnContinue = $("#frm-sql-<?= $worksheet ?> button#continue-statement-<?= $worksheet ?>");
+			var object = eval(btnContinue.attr("data-object"));
+
+			object.row_start = <?= $this->param('row_start') ?>;
+			object.row_end = <?= $this->param('row_end') ?>;
+			object.num_rows = <?= $this->param('num_rows') ?>;
+			object.time = <?= $this->param('time') ?>;
+			object.sql = '<?= $this->param('sql') ?>';
+
+			btnContinue.attr("data-object", "v = " + JSON.stringify(object));
+
+			$("#log-<?= $worksheet ?>").html("<strong><?= $this->param('num_rows') ?></strong> rows!.<br /><strong><?= $this->param('num_fields') ?></strong> fields.<br /><strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br /><strong><?= $this->param('time') ?></strong> seconds!.<br />");
+
+		</script>
+
+   	<?php endif ?>
+
+<?php endif; ?>

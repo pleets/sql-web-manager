@@ -21,12 +21,17 @@ $(function(){
         if (title.hasClass('active'))
             title.removeClass('active');
 
-        title.text(conn_name + "~" + n).attr('data-tab', n);
+        var other_tabs = $("div[data-tab][data-conn='" + id_conn + "']");
+
+        var tab_index = (other_tabs.length) ? parseInt(other_tabs.last().attr('data-tab-index')) + 1 : 1;
+
+        title.html(conn_name + "~" + tab_index + "&nbsp; <button class='ui small compact basic button btn-remove-worksheet'>x</button>").attr('data-tab', n);
 
         $("#worksheet-collector .worksheet-item-title").last().parent().append(title);
 
         var content = $("#worksheet-collector .worksheet-item-content").last().clone();
         content.empty().attr('data-conn', id_conn);
+        content.empty().attr('data-tab-index', tab_index);
 
         $("#worksheet-collector .worksheet-item-content").last().parent().append(content);
 
@@ -43,19 +48,13 @@ $(function(){
 
     $('.menu .item').tab();
 
-    $("body").delegate(".btn-add-table", "click", function(event) {
+    $("body").delegate(".btn-remove-worksheet", "click", function(event)
+    {
+        event.preventDefault();
+        event.stopPropagation();
 
-        var d = new Date();
-        var n = d.getTime();
-
-        var dialog = new JScriptRender.html.Dialog({
-            id: "table-" + n,
-            title: "fff",
-            width: "300px",
-            content: "<p>ff</p>"
-        });
-
-        dialog.insert(document.getElementById('modeler-tab'));
-
+        var tab = $(this).parent().attr('data-tab');
+        $("[data-tab='" + tab + "']").remove();
+        $("a[data-tab='home']").trigger("click");
     });
 });

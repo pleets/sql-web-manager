@@ -4,18 +4,33 @@
 ?>
 
 <form id="frm-sql-<?= $uniqid ?>" action="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" method="post"
-	data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>">
+	data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>">
 	<div class="form-group">
 		<textarea spellcheck="false" name="sql" id="sql<?= $uniqid ?>" rows="10" ui-codemirror class="form-control" autofocus="autofocus" placeholder="your sql here!"></textarea>
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
+		<input type="hidden" name="worksheet" value="<?= $uniqid ?>" />
 	</div>
     <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> Execute</button>
-    <button style="display: none" class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res<?= $uniqid ?>"
+    <button style="display: none" class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
-    data-object="v = { conn: '<?= $conn ?>', sql: window.getSelection().toString() }">Execute statement</button>
+    data-object="v = {
+    	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>',
+    	sql: window.getSelection().toString()
+    }">Execute selection</button>
+    <button style="display: none" class="ui button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
+    data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
+    data-object="v = {
+    	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>', sql: '', row_start: '', row_end: ''
+    }"
+    data-callback="v = {
+		success: function(results)
+		{
+			$('#sql-res-<?= $uniqid ?> .sql-data table tbody tr:last').after(results);
+		}
+	}">Next grid</button>
 </form><br />
 
-<div id="sql-res<?= $uniqid ?>">
+<div id="sql-res-<?= $uniqid ?>">
 	<div class="ui blue message">
 		<p>
 			<strong><i class="info icon"></i></strong> &nbsp;Press <strong>CTRL</strong> + <strong>Enter</strong> to execute selected statement
@@ -63,6 +78,5 @@
 	  	}
 
 	}, false);
-
 
 </script>
