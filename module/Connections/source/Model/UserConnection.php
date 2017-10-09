@@ -27,6 +27,11 @@ class UserConnection extends Entity
 	public $CONNECTION_NAME;
 
 	/**
+	* @var string
+	*/
+	public $STATE;
+
+	/**
 	* @var date
 	*/
 	public $RECORD_DATE;
