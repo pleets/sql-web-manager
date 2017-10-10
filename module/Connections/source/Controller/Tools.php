@@ -488,26 +488,8 @@ class Tools extends AbstractionController
 
                 $step = 10;
 
-                switch (strtolower($dbconfig["driver"]))
-                {
-                    case 'mysqli':
-
                         $row_start = 0;
                         $row_end   = $step;
-
-                        break;
-
-                    case 'oci8':
-
-                        $row_start = 1;
-                        $row_end   = $step;
-
-                        break;
-
-                    default:
-                        # code...
-                        break;
-                }
 
                 if (array_key_exists('row_start', $post) && array_key_exists('row_end', $post))
                 {
@@ -566,9 +548,11 @@ class Tools extends AbstractionController
 
                     case 'oci8':
 
+                        $start = $row_start + 1;
+
                         $sql_text = "SELECT * FROM (
                                         SELECT ROWNUM ROW_NUM, V.* FROM (" . $sql_text . ") V
-                                    ) VV WHERE VV.ROW_NUM BETWEEN $row_start AND $row_end";
+                                    ) VV WHERE VV.ROW_NUM BETWEEN $start AND $row_end";
                         break;
 
                     default:
