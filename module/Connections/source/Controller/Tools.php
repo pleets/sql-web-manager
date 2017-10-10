@@ -662,8 +662,11 @@ class Tools extends AbstractionController
                 }
 
                 # redirect view
-                if ($row_start > 1)
-                    $this->setMethod('nextResults');
+                if ($data["selectStm"])
+                {
+                    if ($row_start > 1)
+                        $this->setMethod('nextResults');
+                }
 
                 # SUCCESS-MESSAGE
                 $data["process"] = "success";
