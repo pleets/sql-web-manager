@@ -486,7 +486,7 @@ class Tools extends AbstractionController
             {
                 $data["selectStm"] = true;
 
-                $step = 5;
+                $step = 10;
 
                 switch (strtolower($dbconfig["driver"]))
                 {
@@ -560,7 +560,8 @@ class Tools extends AbstractionController
 
                         $sql_text = "SELECT (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM, V.* FROM (
                                         " . $sql_text . "
-                                    ) V LIMIT $row_start, $row_end";
+                                    ) V LIMIT $row_start, $step";
+
                         break;
 
                     case 'oci8':

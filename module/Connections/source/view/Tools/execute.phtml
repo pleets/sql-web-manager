@@ -65,7 +65,7 @@
 
 			        element = $("#<?= $uniqid ?>")[0];
 
-			        if (element.scrollHeight - element.scrollTop < 200)
+			        if (element.scrollHeight - element.scrollTop == 180)
 			        	$('#continue-statement-<?= $worksheet ?>').trigger('click');
 
 			    }, false);
