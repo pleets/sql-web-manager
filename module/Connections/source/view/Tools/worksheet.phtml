@@ -20,7 +20,7 @@
     <button style="display: none" class="ui button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
     data-object="v = {
-    	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>', sql: '', row_start: '', row_end: ''
+    	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>', sql: '', row_start: '', row_end: '', base64: true
     }"
     data-callback="v = {
 		success: function(results)

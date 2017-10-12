@@ -457,8 +457,16 @@ class Tools extends AbstractionController
                 }
             }
 
+            /* identifies if sql is base64 encoded */
+            if (array_key_exists('base64', $post))
+            {
+                if ((bool) $post["base64"])
+                    $post["sql"] = base64_decode($post["sql"]);
+            }
+
+            $data["sql"] = base64_encode($post["sql"]);
+
             $sql_text = $post["sql"];
-            $data["sql"] = $post["sql"];
 
             /*
              * SQL parsing
