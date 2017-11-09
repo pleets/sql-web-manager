@@ -496,8 +496,8 @@ class Tools extends AbstractionController
 
                 $step = 10;
 
-                        $row_start = 0;
-                        $row_end   = $step;
+                $row_start = 0;
+                $row_end   = $step;
 
                 if (array_key_exists('row_start', $post) && array_key_exists('row_end', $post))
                 {
@@ -551,7 +551,6 @@ class Tools extends AbstractionController
                         $sql_text = "SELECT (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM, V.* FROM (
                                         " . $sql_text . "
                                     ) V LIMIT $row_start, $step";
-
                         break;
 
                     case 'oci8':
@@ -561,6 +560,21 @@ class Tools extends AbstractionController
                         $sql_text = "SELECT * FROM (
                                         SELECT ROWNUM ROW_NUM, V.* FROM (" . $sql_text . ") V
                                     ) VV WHERE VV.ROW_NUM BETWEEN $start AND $row_end";
+                        break;
+
+                    case 'sqlsrv':
+
+                        $start = $row_start + 1;
+
+                        $sql_text = "SELECT VV.*
+                                    FROM (
+                                        SELECT ROW_NUMBER() OVER(ORDER BY (
+                                            SELECT TOP 1 NAME 
+                                            FROM SYS.DM_EXEC_DESCRIBE_FIRST_RESULT_SET('$sql_text', NULL, 0))
+                                        ) AS ROW_NUM, V.*
+                                        FROM ( $sql_text ) V
+                                    ) VV
+                                    WHERE VV.ROW_NUM BETWEEN $start AND $row_end";
                         break;
 
                     default:
