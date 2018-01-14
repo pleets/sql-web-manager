@@ -206,15 +206,6 @@ class User extends AbstractionController
 
             return $data;
         }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-            $this->handleErrors($dbErrors, __METHOD__);
-        }
 
         return $data;
     }
@@ -358,22 +349,6 @@ class User extends AbstractionController
             $this->setMethod('error');
 
             return $data;
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            # to identify development mode
-            $config = include 'config/application.config.php';
-            $data["dev_mode"] = $config["environment"]["dev_mode"];
-
-            if (!is_null($this->userConnectionEntity))
-            {
-                $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-                $this->handleErrors($dbErrors, __METHOD__);
-            }
         }
 
         return $data;
@@ -556,15 +531,6 @@ class User extends AbstractionController
             $this->setMethod('error');
 
             return $data;
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;
@@ -799,15 +765,6 @@ class User extends AbstractionController
             $this->setMethod('error');
 
             return $data;
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            $dbErrors = $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;

@@ -300,12 +300,9 @@ class Tools extends AbstractionController
             }
             catch (\Exception $e)
             {
-                $err   = $driverAdapter->getDb()->getErrors();
-                $error = (count($err)) ? array_shift($err) : $e->getMessage();
-
                 # SUCCESS-MESSAGE
                 $data["process"] = "error";
-                $data["message"] = $error;
+                $data["message"] = $e->getMessage();
 
                 return $data;
             }
@@ -340,15 +337,6 @@ class Tools extends AbstractionController
             $this->setMethod('error');
 
             return $data;
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-            $this->handleErrors($dbErrors, __METHOD__);
         }
 
         return $data;
@@ -630,12 +618,9 @@ class Tools extends AbstractionController
             }
             catch (\Exception $e)
             {
-                $err   = $driverAdapter->getDb()->getErrors();
-                $error = (count($err)) ? array_shift($err) : $e->getMessage();
-
                 # SUCCESS-MESSAGE
                 $data["process"] = "error";
-                $data["message"] = $error;
+                $data["message"] = $e->getMessage();
 
                 return $data;
             }
@@ -724,18 +709,6 @@ class Tools extends AbstractionController
             $this->setMethod('error');
 
             return $data;
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            if (!is_null($this->identifiersEntity))
-            {
-                $dbErrors = $this->getIdentifiersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-                $this->handleErrors($dbErrors, __METHOD__);
-            }
         }
 
         return $data;
