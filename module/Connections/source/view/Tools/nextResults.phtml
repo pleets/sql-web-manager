@@ -8,6 +8,8 @@
 		$row_end   = $this->param('row_end');
 
 		$row_num   = $row_start;
+
+		$uniqid    = $this->param('id');
 	?>
 
     <?php if (count($data)): ?>
@@ -41,6 +43,22 @@
 			btnContinue.attr("data-object", "v = " + JSON.stringify(object));
 
 			$("#log-<?= $worksheet ?>").html("<strong><?= $this->param('num_rows') ?></strong> rows!.<br /><strong><?= $this->param('num_fields') ?></strong> fields.<br /><strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br /><strong><?= $this->param('time') ?></strong> seconds!.<br />");
+
+			/* Binds new event for next statement */
+
+			var nextStm = function(event) 
+			{
+		        element = $("#<?= $uniqid ?>")[0];
+
+		        if (element.scrollHeight - element.scrollTop < 240) 
+		        {
+		        	// Make sure for only one execution of next statement
+		        	$("#<?= $uniqid ?>")[0].removeEventListener('scroll', nextStm);
+		        	$('#continue-statement-<?= $worksheet ?>').trigger('click');
+		        }
+			}
+
+	    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
 
 		</script>
 

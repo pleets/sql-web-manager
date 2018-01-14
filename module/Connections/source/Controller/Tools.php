@@ -690,6 +690,9 @@ class Tools extends AbstractionController
                         $this->setMethod('nextResults');
                 }
 
+                if (array_key_exists('id', $post))
+                    $data["id"] = $post["id"];
+
                 # SUCCESS-MESSAGE
                 $data["process"] = "success";
             }

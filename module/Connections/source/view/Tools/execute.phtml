@@ -54,21 +54,27 @@
 				var object = eval(btnContinue.attr("data-object"));
 
 				object.row_start = <?= $this->param('row_start') ?>;
-				object.row_end = <?= $this->param('row_end') ?>;
-				object.num_rows = <?= $this->param('num_rows') ?>;
-				object.time = <?= $this->param('time') ?>;
-				object.sql = '<?= $this->param('sql') ?>';
+				object.row_end   = <?= $this->param('row_end') ?>;
+				object.num_rows  = <?= $this->param('num_rows') ?>;
+				object.time      = <?= $this->param('time') ?>;
+				object.sql       = '<?= $this->param('sql') ?>';
+				object.id        = '<?= $uniqid ?>';
 
 				btnContinue.attr("data-object", "v = " + JSON.stringify(object));
 
-		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', (event) => {
-
+				var nextStm = function(event) 
+				{
 			        element = $("#<?= $uniqid ?>")[0];
 
-			        if (element.scrollHeight - element.scrollTop == 180)
+			        if (element.scrollHeight - element.scrollTop < 240) 
+			        {
+			        	// Make sure for only one execution of next statement
+			        	$("#<?= $uniqid ?>")[0].removeEventListener('scroll', nextStm);
 			        	$('#continue-statement-<?= $worksheet ?>').trigger('click');
+			        }
+				}
 
-			    }, false);
+		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
 
 			<?php endif; ?>
 
