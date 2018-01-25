@@ -35,7 +35,9 @@
 									<td><div class="ui ribbon label"><?= $row_num ?></div></td>
 								<?php else: ?>
 									<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
-									<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
+									<td title="<?= htmlentities($row[$i]) ?>" onmouseenter="$('#app-contextual-menu').attr('data-text', this.title)">
+										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">'.htmlentities($row[$i]).'</pre>' : '<span class="ui orange label">NULL</span>' ?>
+									</td>
 								<?php endif; ?>
 							<?php endfor; ?>
 						</tr>
@@ -62,11 +64,11 @@
 
 				btnContinue.attr("data-object", "v = " + JSON.stringify(object));
 
-				var nextStm = function(event) 
+				var nextStm = function(event)
 				{
 			        element = $("#<?= $uniqid ?>")[0];
 
-			        if (element.scrollHeight - element.scrollTop < 240) 
+			        if (element.scrollHeight - element.scrollTop < 240)
 			        {
 			        	// Make sure for only one execution of next statement
 			        	$("#<?= $uniqid ?>")[0].removeEventListener('scroll', nextStm);
@@ -76,9 +78,46 @@
 
 		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
 
+		    	// contextual menu
+				$("#<?= $uniqid ?>")[0].addEventListener( "contextmenu", function(e) {
+
+					e.preventDefault();
+
+					var x = e.clientX;
+					var y = e.clientY;
+
+					var app_ctx_menu = $("#app-contextual-menu");
+					app_ctx_menu.show().css('left', x);
+					app_ctx_menu.show().css('top', y);
+				});
+
 			<?php endif; ?>
 
 		</script>
+
+		<div id="app-contextual-menu">
+			<div class="ui vertical menu">
+				<a class="teal item" onclick="
+					$('#app-modal-menu .content').html($('#app-contextual-menu').attr('data-text'));
+					$('#app-modal-menu').modal('show');
+					$('#app-contextual-menu').css('display', 'none');">
+					View
+				</a>
+			</div>
+		</div>
+
+		<div class="ui modal" id="app-modal-menu">
+			<div class="header">Contents</div>
+			<div class="content"></div>
+		</div>
+
+		<style type="text/css">
+			#app-contextual-menu, #app-modal-menu
+			{
+				position: fixed;
+				display: none;
+			}
+		</style>
 
     <?php else: ?>
     	<div class="alert alert-warning">
