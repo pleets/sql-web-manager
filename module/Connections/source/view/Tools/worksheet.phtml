@@ -15,7 +15,7 @@
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
     data-object="v = {
     	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>',
-    	sql: window.getSelection().toString()
+    	sql: editor<?= $uniqid ?>.getSelection()
     }">Execute selection</button>
     <button style="display: none" class="ui button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
@@ -51,7 +51,7 @@
 </style>
 
 <script>
-	var editor = CodeMirror.fromTextArea(document.getElementById("sql<?= $uniqid ?>"), {
+	var editor<?= $uniqid ?> = CodeMirror.fromTextArea(document.getElementById("sql<?= $uniqid ?>"), {
 	    lineNumbers: true,
 	    matchBrackets: true,
 	    mode: "text/x-sql",
