@@ -475,13 +475,14 @@ class Tools extends AbstractionController
             }
 
             # indicates if SQL is a selection statement
-            $data["selectStm"] = false;
+            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $sql_text));
+
+            # indicates if SQL is a show statement
+            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $sql_text));
 
             # detect selection
-            if (preg_match('/^SELECT/i', $sql_text))
+            if ($isSelectStm || $isShowStm)
             {
-                $data["selectStm"] = true;
-
                 $step = 10;
 
                 $row_start = 0;
@@ -536,9 +537,11 @@ class Tools extends AbstractionController
                 {
                     case 'mysqli':
 
-                        $sql_text = "SELECT (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM, V.* FROM (
-                                        " . $sql_text . "
-                                    ) V LIMIT $row_start, $step";
+                        # show statement cannot be a subquery
+                        if (!$isShowStm)
+                            $sql_text = "SELECT (@ROW_NUM:=@ROW_NUM + 1) AS ROW_NUM, V.* FROM (
+                                            " . $sql_text . "
+                                        ) V LIMIT $row_start, $step";
                         break;
 
                     case 'oci8':
@@ -557,7 +560,7 @@ class Tools extends AbstractionController
                         $sql_text = "SELECT VV.*
                                     FROM (
                                         SELECT ROW_NUMBER() OVER(ORDER BY (
-                                            SELECT TOP 1 NAME 
+                                            SELECT TOP 1 NAME
                                             FROM SYS.DM_EXEC_DESCRIBE_FIRST_RESULT_SET('$sql_text', NULL, 0))
                                         ) AS ROW_NUM, V.*
                                         FROM ( $sql_text ) V
@@ -638,7 +641,7 @@ class Tools extends AbstractionController
                 $data["rows_affected"] = $auth->getDb()->getRowsAffected();
 
                 # cumulative results
-                if ($data["selectStm"] && array_key_exists('num_rows', $post) && array_key_exists('time', $post))
+                if ($isSelectStm && array_key_exists('num_rows', $post) && array_key_exists('time', $post))
                 {
                     $data["num_rows"] += $post["num_rows"];
                     $data["time"]     += $post["time"];
@@ -648,13 +651,26 @@ class Tools extends AbstractionController
 
                 $data["data"] = [];
 
+                $k = 0;
+
                 # data parsing
                 foreach ($rows as $key => $row)
                 {
+                    $k++;
+
                     $data["data"][$key] = [];
+
+                    if ($isShowStm)
+                    {
+                        $data["data"][$key]["ROW_NUM"] = $k;
+                        $data["data"][$key][0] = $k;
+                    }
 
                     foreach ($row as $column => $value)
                     {
+                        if ($isShowStm)
+                            $column++;
+
                         if (gettype($value) == 'object')
                         {
                             if  (get_class($value) == 'OCI-Lob')
@@ -669,7 +685,7 @@ class Tools extends AbstractionController
                 }
 
                 # redirect view
-                if ($data["selectStm"])
+                if ($isSelectStm)
                 {
                     if ($row_start > 1)
                         $this->setMethod('nextResults');

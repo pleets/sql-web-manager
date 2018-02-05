@@ -34,7 +34,11 @@
 								<?php if ($i == 0): ?>
 									<td><div class="ui ribbon label"><?= $row_num ?></div></td>
 								<?php else: ?>
-									<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
+									<?php
+										if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'):
+											$row[$i] = $row[$i]->format("Y-m-d H:i:s");
+										endif;
+									?>
 									<td title="<?= htmlentities($row[$i]) ?>" onmouseenter="$('#app-contextual-menu').attr('data-text', this.title)">
 										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">'.htmlentities($row[$i]).'</pre>' : '<span class="ui orange label">NULL</span>' ?>
 									</td>
