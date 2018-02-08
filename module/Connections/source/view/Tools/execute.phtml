@@ -40,7 +40,8 @@
 										endif;
 									?>
 									<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
-										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">'.htmlentities($row[$i]).'</pre>' : '<span class="ui orange label">NULL</span>' ?>
+										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .
+												htmlentities($row[$i]) . '</pre>' : '<span class="ui orange label">NULL</span>' ?>
 									</td>
 								<?php endif; ?>
 							<?php endfor; ?>

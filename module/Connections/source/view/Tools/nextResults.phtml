@@ -20,8 +20,15 @@
 					<?php if ($i == 0): ?>
 						<td><div class="ui ribbon label"><?= $row_num ?></div></td>
 					<?php else: ?>
-						<?php if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'): $row[$i] = $row[$i]->format("Y-m-d H:i:s"); endif; ?>
-						<td><?= !is_null($row[$i]) ? '<pre style="margin: 0">'.$row[$i].'</pre>' : '<span class="ui orange label">NULL</span>' ?></td>
+						<?php
+							if (is_object($row[$i]) && get_class($row[$i]) == 'DateTime'):
+								$row[$i] = $row[$i]->format("Y-m-d H:i:s");
+							endif;
+						?>
+						<td title="<?= htmlentities($row[$i]) ?>" class="context-menu no-binded">
+							<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .
+									htmlentities($row[$i]) . '</pre>' : '<span class="ui orange label">NULL</span>' ?>
+						</td>
 					<?php endif; ?>
 				<?php endfor; ?>
 			</tr>
@@ -46,11 +53,11 @@
 
 			/* Binds new event for next statement */
 
-			var nextStm = function(event) 
+			var nextStm = function(event)
 			{
 		        element = $("#<?= $uniqid ?>")[0];
 
-		        if (element.scrollHeight - element.scrollTop < 240) 
+		        if (element.scrollHeight - element.scrollTop < 240)
 		        {
 		        	// Make sure for only one execution of next statement
 		        	$("#<?= $uniqid ?>")[0].removeEventListener('scroll', nextStm);
@@ -59,6 +66,39 @@
 			}
 
 	    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
+
+	    	// contextual menu
+	    	$.each($("#<?= $uniqid ?> .context-menu.no-binded"), function(key, cell) {
+				cell.addEventListener( "contextmenu", function(e) {
+
+					e.preventDefault();
+
+					/*
+					 * Gets the value cell value
+					 */
+
+					// when is directly a TD element get the html (this includes PRE element)
+					if (e.path[0].nodeName == 'TD')
+						var td = $(e.path[0]);
+					// when is not a TD element, the user clicks directly inside PRE element, so get outer html
+					else
+						var td = $(e.path[0]).parent();
+
+					var app_ctx_menu = $("#app-contextual-menu-<?= $uniqid ?>");
+
+					// the title attribute stores the cell value for each cell
+					app_ctx_menu.attr('data-text', td.attr('title'));
+
+					var x = e.clientX;
+					var y = e.clientY;
+
+					// contextual menu positioning
+					app_ctx_menu.show().css('left', x);
+					app_ctx_menu.show().css('top', y);
+				});
+
+				$(cell).removeClass('no-binded');
+	    	});
 
 		</script>
 
