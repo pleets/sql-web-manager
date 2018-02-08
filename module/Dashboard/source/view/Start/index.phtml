@@ -10,7 +10,7 @@
 	</div>
 
 	<div class="ui tab active" data-tab="tab-1">
-		<div class="ui grid">
+		<div class="ui workarea grid" id='grid-workarea'>
 			<div class="three wide column">
 				<div class="ui icon buttons">
 					<button class="ui button" data-toggle="modal"
@@ -25,6 +25,34 @@
 					<button class="ui button" data-url="<?= $this->basePath() ?>/public/Connections/User/listConnections"
 						data-role="ajax-request" data-type="get" data-response="#list-connections-response" id="btn-list-connections">
 						<i class="refresh icon"></i>
+					</button>
+					<button class="ui button" onclick="
+
+						if ($('#grid-workarea > .one.column').length)
+						{
+							$('#grid-workarea > .one.column .ui.buttons').removeClass('vertical');
+
+							old_class = $('#grid-workarea > .one.column').attr('class');
+							$('#grid-workarea > .one.column').attr('class', old_class.replace('one', 'three'));
+
+							old_class = $('#grid-workarea > .fourteen.column').attr('class');
+							$('#grid-workarea > .fourteen.column').attr('class', old_class.replace('fourteen', 'twelve'));
+
+							$(this).html('<i class=\'window minimize icon\'></i>');
+						}
+						else {
+							$('#grid-workarea > .three.column .ui.buttons').addClass('vertical');
+
+							old_class = $('#grid-workarea > .three.column').attr('class');
+							$('#grid-workarea > .three.column').attr('class', old_class.replace('three', 'one'));
+
+							old_class = $('#grid-workarea > .twelve.column').attr('class');
+							$('#grid-workarea > .twelve.column').attr('class', old_class.replace('twelve', 'fourteen'));
+
+							$(this).html('<i class=\'window restore icon\'></i>');
+						}
+					">
+						<i class="window minimize icon"></i>
 					</button>
 				</div>
 				<div class="ui relaxed divided list" id="list-connections-response">

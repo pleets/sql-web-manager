@@ -11,3 +11,8 @@
 	border-radius: 0;
 	border: solid 1px silver;
 }
+
+/* For worksheet maximized */
+.ui.grid.workarea > .column.one .ui.list {
+    display: none;
+}
