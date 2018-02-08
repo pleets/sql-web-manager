@@ -56,8 +56,15 @@
 	</div>
 
 	<script type="text/javascript">
-		$(function(){
+		$(function() {
+
 			$("#btn-list-connections").trigger("click");
+
+			// hide contextual menus
+			$("body").delegate("*", "click", function(e) {
+				$('.app-contextual-menu').css('display', 'none');
+			});
+
 		});
 	</script>
 

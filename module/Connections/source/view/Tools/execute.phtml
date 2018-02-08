@@ -39,7 +39,7 @@
 											$row[$i] = $row[$i]->format("Y-m-d H:i:s");
 										endif;
 									?>
-									<td title="<?= htmlentities($row[$i]) ?>" onmouseenter="$('#app-contextual-menu').attr('data-text', this.title)">
+									<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
 										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">'.htmlentities($row[$i]).'</pre>' : '<span class="ui orange label">NULL</span>' ?>
 									</td>
 								<?php endif; ?>
@@ -83,28 +83,46 @@
 		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
 
 		    	// contextual menu
-				$("#<?= $uniqid ?>")[0].addEventListener( "contextmenu", function(e) {
+		    	$.each($("#<?= $uniqid ?> .context-menu"), function(key, cell) {
+					cell.addEventListener( "contextmenu", function(e) {
 
-					e.preventDefault();
+						e.preventDefault();
 
-					var x = e.clientX;
-					var y = e.clientY;
+						/*
+						 * Gets the value cell value
+						 */
 
-					var app_ctx_menu = $("#app-contextual-menu");
-					app_ctx_menu.show().css('left', x);
-					app_ctx_menu.show().css('top', y);
-				});
+						// when is directly a TD element get the html (this includes PRE element)
+						if (e.path[0].nodeName == 'TD')
+							var td = $(e.path[0]);
+						// when is not a TD element, the user clicks directly inside PRE element, so get outer html
+						else
+							var td = $(e.path[0]).parent();
+
+						var app_ctx_menu = $("#app-contextual-menu-<?= $uniqid ?>");
+
+						// the title attribute stores the cell value for each cell
+						app_ctx_menu.attr('data-text', td.attr('title'));
+
+						var x = e.clientX;
+						var y = e.clientY;
+
+						// contextual menu positioning
+						app_ctx_menu.show().css('left', x);
+						app_ctx_menu.show().css('top', y);
+					});
+		    	});
 
 			<?php endif; ?>
 
 		</script>
 
-		<div id="app-contextual-menu">
+		<div id="app-contextual-menu-<?= $uniqid ?>" class="app-contextual-menu">
 			<div class="ui vertical menu">
 				<a class="teal item" onclick="
-					$('#app-modal-menu .content').html($('#app-contextual-menu').attr('data-text'));
+					$('#app-modal-menu .content').html($('#app-contextual-menu-<?= $uniqid ?>').attr('data-text'));
 					$('#app-modal-menu').modal('show');
-					$('#app-contextual-menu').css('display', 'none');">
+					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
 					View
 				</a>
 			</div>
@@ -116,7 +134,7 @@
 		</div>
 
 		<style type="text/css">
-			#app-contextual-menu, #app-modal-menu
+			.app-contextual-menu, #app-modal-menu
 			{
 				position: fixed;
 				display: none;
