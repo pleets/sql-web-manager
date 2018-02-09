@@ -16,3 +16,49 @@
 .ui.grid.workarea > .column.one .ui.list {
     display: none;
 }
+
+.ui.grid.workarea > .column.one .ui.buttons {
+    position: fixed;
+    z-index: 10;
+}
+
+@media (max-width: 720px) {
+    .ui.grid.workarea > .column.three {
+    	width: auto !important;
+    }
+
+    .ui.grid.workarea > .column.three .ui.list .right.floated.content {
+        position: absolute;
+    }
+
+    .ui.grid.workarea > .column.three .ui.list .content.view {
+        display: none;
+    }
+
+
+	/* does .vertical style manually */
+
+	.ui.grid.workarea .ui.buttons {
+	    display: -webkit-inline-box;
+	    display: -ms-inline-flexbox;
+	    display: inline-flex;
+	    -webkit-box-orient: vertical;
+	    -webkit-box-direction: normal;
+	    -ms-flex-direction: column;
+	    flex-direction: column;
+	}
+
+	.ui.grid.workarea .ui.buttons .button:first-child {
+	    border-top-left-radius: .28571429rem;
+	    border-top-right-radius: .28571429rem;
+	}
+
+	.ui.grid.workarea  .ui.buttons .button {
+	    display: block;
+	    float: none;
+	    width: 100%;
+	    margin: 0;
+	    box-shadow: none;
+	    border-radius: 0;
+	}
+}
