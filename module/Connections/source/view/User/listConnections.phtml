@@ -6,9 +6,10 @@
 		<?php foreach ($connections as $connection): ?>
 			<div class="item" id="user-conn-list-item-<?= $connection->USER_CONN_ID ?>">
 			    <div class="right floated content">
-					<div class="ui right dropdown item">
+					<div class="ui right dropdown item" id="connection-options-<?= $connection->USER_CONN_ID ?>">
 						<i class="dropdown icon"></i>
 						<div class="menu">
+							<div class="header"><?= $connection->CONNECTION_NAME ?></div>
 							<div class="item btn-new-worksheet" data-id="<?= $connection->USER_CONN_ID ?>" data-name="<?= $connection->CONNECTION_NAME ?>">
 								<i class="icon terminal"></i> New Worksheet
 							</div>
@@ -30,6 +31,7 @@
 					</a>
 					<div class="description">database</div>
 				</div>
+				<a class="ui red circular label connection-id" onclick="$('#connection-options-<?= $connection->USER_CONN_ID ?>').trigger('click')"><?= $connection->USER_CONN_ID ?></a>
 			</div>
 		<?php endforeach; ?>
 	<?php else: ?>
