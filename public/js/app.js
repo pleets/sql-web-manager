@@ -20,9 +20,10 @@ $(function(){
 
         var call = eval($(this).attr('data-callback')) || {};
 
-        call.success = call.success || new Function();
-        call.before  = call.before  || new Function();
-        call.error   = call.error   || new Function();
+        call.complete = call.complete || new Function();
+        call.success  = call.success || new Function();
+        call.before   = call.before  || new Function();
+        call.error    = call.error   || new Function();
 
         var form_data = $(this).serializeArray();
 
@@ -38,7 +39,8 @@ $(function(){
             type: type,
             data: form_data,
             beforeSend: function() {
-                $(box).html("&nbsp; <span class='$ rotate-x infinite fast' style='display: inline-block'><i class='icon idea' aria-hidden='true'></i></span> Cargando...");
+                var loader = "<div class='ui active inline loader'></div>";
+                $(box).html(loader);
                 call.before();
             },
             error: function(jqXHR, textStatus, errorThrown)
@@ -62,6 +64,7 @@ $(function(){
                 formObject.find("input").removeAttr("readonly");
                 formObject.find("select").removeAttr("readonly");
                 formObject.find("button[type='submit']").removeAttr("disabled");
+                call.success(data);
             }
         });
     });
@@ -81,9 +84,10 @@ $(function(){
 
         var call = eval($(this).attr('data-callback')) || {};
 
-        call.success = call.success || new Function();
-        call.before  = call.before  || new Function();
-        call.error   = call.error   || new Function();
+        call.complete = call.complete   || new Function();
+        call.success  = call.success || new Function();
+        call.before   = call.before  || new Function();
+        call.error    = call.error   || new Function();
 
         var form_data = $(frm).serializeArray();
 
@@ -99,7 +103,8 @@ $(function(){
             type: type,
             data: form_data,
             beforeSend: function() {
-                $(box).html("&nbsp; <span class='$ rotate-x infinite fast' style='display: inline-block'><i class='icon idea' aria-hidden='true'></i></span> Cargando...");
+                var loader = "<div class='ui active inline loader'></div>";
+                $(box).html(loader);
                 call.before();
             },
             error: function(jqXHR, textStatus, errorThrown)
@@ -117,6 +122,10 @@ $(function(){
             {
                 $(box).html(data);
                 call.success(data);
+            },
+            complete: function()
+            {
+                call.complete();
             }
         });
     });

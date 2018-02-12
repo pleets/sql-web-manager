@@ -4,7 +4,17 @@
 ?>
 
 <form id="frm-sql-<?= $uniqid ?>" action="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" method="post"
-	data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>">
+	data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>"
+    data-callback="v = {
+        before: function()
+        {
+        	$('#continue-statement-<?= $uniqid ?>-scrollex').attr('disabled', 'disabled');
+        },
+        complete: function()
+        {
+        	$('#continue-statement-<?= $uniqid ?>-scrollex').removeAttr('disabled');
+        }
+    }">
 	<div class="form-group">
 		<textarea spellcheck="false" name="sql" id="sql<?= $uniqid ?>" rows="10" ui-codemirror class="form-control" autofocus="autofocus" placeholder="your sql here!"></textarea>
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
@@ -16,21 +26,48 @@
     data-object="v = {
     	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>',
     	sql: editor<?= $uniqid ?>.getSelection()
+    }"
+    data-callback="v = {
+        before: function()
+        {
+        	$('#continue-statement-<?= $uniqid ?>-scrollex').attr('disabled', 'disabled');
+        },
+        complete: function()
+        {
+			// simulates submitting
+			$('#frm-sql-<?= $uniqid ?> button[type=\'submit\']').removeAttr('disabled');
+        }
     }">Execute selection</button>
-    <button style="display: none" class="ui button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
+    <button disabled="disabled" class="ui icon button" type="button" id="continue-statement-<?= $uniqid ?>-scrollex"
+    	onclick="$('#sql-res-<?= $uniqid ?> .sql-data')[0].scrollTop = 9999999;"><i class="angle double down icon"></i>
+    </button>
+    <button disabled="disabled" style="display: none" class="ui icon button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
     data-object="v = {
     	conn: '<?= $conn ?>', worksheet: '<?= $uniqid ?>', sql: '', row_start: '', row_end: '', base64: true
     }"
     data-callback="v = {
+        before: function()
+        {
+        	var loader = '<div class=\'ui active inverted dimmer next-loader\'><div class=\'ui indeterminate text loader\'>Loading</div></div>';
+        	$('#sql-res-<?= $uniqid ?>').prepend(loader);
+        	$('#continue-statement-<?= $uniqid ?>').attr('disabled', 'disabled');
+        	$('#continue-statement-<?= $uniqid ?>-scrollex').attr('disabled', 'disabled');
+        },
 		success: function(results)
 		{
 			$('#sql-res-<?= $uniqid ?> .sql-data table tbody tr:last').after(results);
+		},
+		complete: function()
+		{
+			$('#sql-res-<?= $uniqid ?> .next-loader').remove();
+        	$('#continue-statement-<?= $uniqid ?>').removeAttr('disabled');
+        	$('#continue-statement-<?= $uniqid ?>-scrollex').removeAttr('disabled');
 		}
-	}">Next grid</button>
+	}"><i class="angle double down icon"></i></button>
 </form><br />
 
-<div id="sql-res-<?= $uniqid ?>">
+<div id="sql-res-<?= $uniqid ?>" style="position: relative;">
 	<div class="ui blue message">
 		<p>
 			<strong><i class="info icon"></i></strong> &nbsp;Press <strong>CTRL</strong> + <strong>Enter</strong> to execute selected statement
@@ -72,8 +109,10 @@
 			if (keyName === 'Enter')
 			{
 				// F5 - Execute several statements are not supported yet
-				//$("#frm-sql-<?= $uniqid ?> button[type='submit']").trigger('click');
 				$("#execute-statement-<?= $uniqid ?>").trigger('click');
+
+				// simulates submitting
+				$("#frm-sql-<?= $uniqid ?> button[type='submit']").attr('disabled', 'disabled');
 			}
 	  	}
 

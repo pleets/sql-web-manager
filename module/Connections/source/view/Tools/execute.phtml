@@ -83,6 +83,9 @@
 
 		    	$("#<?= $uniqid ?>")[0].addEventListener('scroll', nextStm, false);
 
+				$("#continue-statement-<?= $worksheet ?>").removeAttr('disabled');
+				$("#continue-statement-<?= $worksheet ?>-scrollex").removeAttr('disabled');
+
 		    	// contextual menu
 		    	$.each($("#<?= $uniqid ?> .context-menu"), function(key, cell) {
 					cell.addEventListener( "contextmenu", function(e) {
