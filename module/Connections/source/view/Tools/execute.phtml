@@ -5,19 +5,28 @@
 		$selectStm = $this->param("selectStm");
 		$data      = $this->param("data");
 		$uniqid    = uniqid();
+
+		if ($selectStm)
+			$column_errors = $this->param('column_errors');
 	?>
 
     <?php if (count($data)): ?>
     	<div class="sql-data" style="height: 180px; overflow: auto; padding-left: 15px" id="<?= $uniqid ?>">
 			<table class="ui very compact celled collapsing table">
 				<thead>
-					<?php $column_names = $data[0]; ?>
+					<?php
+						$column_names = $data[0];
+						$column_names_indexed = [];
+					?>
 					<tr>
 						<?php $i = 1; ?>
 						<?php foreach($column_names as $key => $row): ?>
 							<?php if (!is_numeric($key)): ?>
 								<th><?= ($i != 1) ? $key : "#" ?></th>
-								<?php $i++; ?>
+								<?php
+									$column_names_indexed[$i] = $key;
+									$i++;
+								?>
 							<?php endif; ?>
 						<?php endforeach; ?>
 					</tr>
@@ -39,10 +48,18 @@
 											$row[$i] = $row[$i]->format("Y-m-d H:i:s");
 										endif;
 									?>
-									<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
-										<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .
-												htmlentities($row[$i]) . '</pre>' : '<span class="ui orange label">NULL</span>' ?>
-									</td>
+									<?php if (in_array($column_names_indexed[$i+1], $column_errors)): ?>
+										<td title="Can't bind value" class="context-menu negative">
+											<span class="ui red label"><i class="warning circle icon"></i>Error</span>
+										</td>
+									<?php else: ?>
+										<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
+											<?= !is_null($row[$i])
+												? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .htmlentities($row[$i]) . '</pre>'
+												: '<span class="ui orange label">NULL</span>'
+											?>
+										</td>
+									<?php endif; ?>
 								<?php endif; ?>
 							<?php endfor; ?>
 						</tr>

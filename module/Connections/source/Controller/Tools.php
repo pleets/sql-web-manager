@@ -653,6 +653,9 @@ class Tools extends AbstractionController
 
                 $k = 0;
 
+                # columns with errors in a select statement
+                $column_errors = [];
+
                 # data parsing
                 foreach ($rows as $key => $row)
                 {
@@ -674,7 +677,15 @@ class Tools extends AbstractionController
                         if (gettype($value) == 'object')
                         {
                             if  (get_class($value) == 'OCI-Lob')
-                                $data["data"][$key][$column] = $value->load();
+                            {
+                                if (($val = @$value->load()) === false)
+                                {
+                                    $val = null;   # only for default, this value is not used
+                                    $column_errors[] = $column;
+                                }
+
+                                $data["data"][$key][$column] = $val;
+                            }
                             else
                                 $data["data"][$key][$column] = $value;
                         }
@@ -687,6 +698,8 @@ class Tools extends AbstractionController
                 # redirect view
                 if ($isSelectStm)
                 {
+                    $data["column_errors"] = $column_errors;
+
                     if ($row_start > 1)
                         $this->setMethod('nextResults');
                 }

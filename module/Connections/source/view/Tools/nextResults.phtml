@@ -10,9 +10,28 @@
 		$row_num   = $row_start;
 
 		$uniqid    = $this->param('id');
+
+		$column_errors = $this->param('column_errors');
 	?>
 
     <?php if (count($data)): ?>
+
+		<?php
+			$column_names = $data[0];
+			$column_names_indexed = [];
+		?>
+
+		<?php $i = 1; ?>
+
+		<?php foreach($column_names as $key => $row): ?>
+			<?php if (!is_numeric($key)): ?>
+				<?php
+					$column_names_indexed[$i] = $key;
+					$i++;
+				?>
+			<?php endif; ?>
+		<?php endforeach; ?>
+
 		<?php foreach($data as $row): ?>
 			<?php $row_num++; ?>
 			<tr>
@@ -25,10 +44,18 @@
 								$row[$i] = $row[$i]->format("Y-m-d H:i:s");
 							endif;
 						?>
-						<td title="<?= htmlentities($row[$i]) ?>" class="context-menu no-binded">
-							<?= !is_null($row[$i]) ? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .
-									htmlentities($row[$i]) . '</pre>' : '<span class="ui orange label">NULL</span>' ?>
-						</td>
+						<?php if (in_array($column_names_indexed[$i+1], $column_errors)): ?>
+							<td title="Can't bind value" class="context-menu negative">
+								<span class="ui red label"><i class="warning circle icon"></i>Error</span>
+							</td>
+						<?php else: ?>
+							<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
+								<?= !is_null($row[$i])
+									? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .htmlentities($row[$i]) . '</pre>'
+									: '<span class="ui orange label">NULL</span>'
+								?>
+							</td>
+						<?php endif; ?>
 					<?php endif; ?>
 				<?php endfor; ?>
 			</tr>
