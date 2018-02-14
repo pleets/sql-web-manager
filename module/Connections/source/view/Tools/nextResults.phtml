@@ -45,11 +45,11 @@
 							endif;
 						?>
 						<?php if (in_array($column_names_indexed[$i+1], $column_errors)): ?>
-							<td title="Can't bind value" class="context-menu negative">
+							<td title="Can't bind value" class="context-menu negative no-binded">
 								<span class="ui red label"><i class="warning circle icon"></i>Error</span>
 							</td>
 						<?php else: ?>
-							<td title="<?= htmlentities($row[$i]) ?>" class="context-menu">
+							<td title="<?= htmlentities($row[$i]) ?>" class="context-menu no-binded">
 								<?= !is_null($row[$i])
 									? '<pre style="margin: 0; max-height: 20px; overflow: hidden;">' .htmlentities($row[$i]) . '</pre>'
 									: '<span class="ui orange label">NULL</span>'
