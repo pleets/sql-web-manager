@@ -39,7 +39,12 @@
         }
     }">Execute selection</button>
     <button disabled="disabled" class="ui icon button" type="button" id="continue-statement-<?= $uniqid ?>-scrollex"
-    	onclick="$('#sql-res-<?= $uniqid ?> .sql-data')[0].scrollTop = 9999999;"><i class="angle double down icon"></i>
+    	onclick="
+    		if (!$('#sql-res-<?= $uniqid ?> .sql-data').hasClass('auto-height'))
+    			$('#sql-res-<?= $uniqid ?> .sql-data')[0].scrollTop = 9999999;
+    		else
+    			$('#continue-statement-<?= $uniqid ?>').trigger('click');
+    	"><i class="angle double down icon"></i>
     </button>
     <button disabled="disabled" style="display: none" class="ui icon button" type="button" id="continue-statement-<?= $uniqid ?>" data-role="ajax-request"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"

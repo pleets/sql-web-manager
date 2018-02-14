@@ -11,7 +11,7 @@
 	?>
 
     <?php if (count($data)): ?>
-    	<div class="sql-data" style="height: 180px; overflow: auto; padding-left: 15px" id="<?= $uniqid ?>">
+    	<div class="sql-data" style="height: 175px; overflow: auto; padding-left: 15px;" id="<?= $uniqid ?>" data-height="175px">
 			<table class="ui very compact celled collapsing table">
 				<thead>
 					<?php
@@ -68,6 +68,59 @@
 				</tbody>
 			</table>
     	</div>
+
+		<div style=" text-align: center;">
+			<div style="background: #e0e1e2; height: 12px; cursor: n-resize;" id="table-sizing-<?= $uniqid ?>"></div>
+			<div id="table-overflow-<?= $uniqid ?>" style="background: #e0e1e2; height: 15px; display: inline-block; border-radius: 0 0 5px 5px; width: 50px;" class="mini ui icon button" data-resize='#<?= $uniqid ?>'>
+				<i class="angle down icon" style="margin-top: -5px !important;"></i>
+			</div>
+
+			<script type="text/javascript">
+				$('#table-overflow-<?= $uniqid ?>').click(function(){
+					if ($('#<?= $uniqid ?>').hasClass('auto-height'))
+					{
+						$('#<?= $uniqid ?>').removeClass('auto-height');
+						$(this).find('.icon').removeClass('up').addClass('down');
+					}
+					else
+					{
+						$('#<?= $uniqid ?>').addClass('auto-height');
+						$(this).find('.icon').removeClass('down').addClass('up');
+					}
+				});
+
+				var sizing_e   = document.getElementById("table-sizing-<?= $uniqid ?>");
+				var sizing_box = document.getElementById("<?= $uniqid ?>");
+
+				resize = function(sizer, box)
+				{
+					var pos;
+
+					sizer.addEventListener('mousedown', function(event) {
+						pos = event.clientY;
+						document.body.addEventListener('mousemove', _resize);
+					});
+
+					document.body.addEventListener('mouseup', function() {
+						document.body.removeEventListener('mousemove', _resize);
+					});
+
+					function _resize(event) {
+						var delta = event.clientY - pos;
+						var new_height = parseInt(box.style.height.replace('px', '')) + delta;
+						box.style.height = new_height + 'px';
+						pos = event.clientY;
+					}
+				}
+
+				resize(sizing_e,sizing_box);
+
+			</script>
+
+			<style>
+				.auto-height { height: auto !important; }
+			</style>
+		</div>
 
 		<script type="text/javascript">
 
