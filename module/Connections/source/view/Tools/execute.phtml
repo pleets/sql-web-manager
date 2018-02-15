@@ -199,12 +199,39 @@
 					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
 					View
 				</a>
+				<a class="teal item" onclick="
+					$('#app-export-data').modal('show');
+					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
+					Export to XLS
+				</a>
 			</div>
 		</div>
 
 		<div class="ui modal" id="app-modal-menu">
 			<div class="header">Contents</div>
 			<div class="content"></div>
+		</div>
+
+		<div class="ui modal" id="app-export-data">
+			<div class="header">Export assistant</div>
+			<div class="content">
+				<form class="ui form" id="frm-add-user-connection" data-role="ajax-request" data-response="#add-user-connection-response"
+					action="<?= $this->basePath() ?>/public/Connections/User/addConnection" method="post">
+					<div class="fields">
+						<div class="eight wide field">
+							<label for="type">Type</label>
+							<select class="ui dropdown" name="type" id="type">
+								<option value="excel">Excel</option>
+							</select>
+						</div>
+						<div class="eight wide field">
+							<label for="filename">Filename</label>
+							<input type="text" id="filename" name="filename" placeholder="filename" />
+						</div>
+					</div>
+					<button class="ui submit button"><i class="check icon"></i> Export</button>
+				</form><br />
+			</div>
 		</div>
 
     <?php else: ?>
