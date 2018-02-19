@@ -3,10 +3,11 @@
 	<?php
 		$worksheet = $this->param("worksheet");
 		$selectStm = $this->param("selectStm");
+		$showStm = $this->param("showStm");
 		$data      = $this->param("data");
 		$uniqid    = uniqid();
 
-		if ($selectStm)
+		if ($selectStm || $showStm)
 			$column_errors = $this->param('column_errors');
 	?>
 

@@ -696,7 +696,7 @@ class Tools extends AbstractionController
                 }
 
                 # redirect view
-                if ($isSelectStm)
+                if ($isSelectStm || $isShowStm)
                 {
                     $data["column_errors"] = $column_errors;
 
