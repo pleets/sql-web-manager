@@ -1,0 +1,51 @@
+<?php if ($this->param("process") == "success"): ?>
+
+	<?php
+		$filename = $this->param("filename");
+	?>
+
+	<a class="ui teal submit button" target="_blank" href="<?= $this->basePath() ?>/cache/<?= $filename ?>">
+		<i class="download icon"></i> Download file
+	</a>
+
+	<div style="padding-top: 10px">
+    	<strong><?= $this->param('num_rows') ?></strong> rows!.<br />
+    	<strong><?= $this->param('num_fields') ?></strong> fields.<br />
+    	<strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br />
+    	<strong><?= $this->param('time') ?></strong> seconds!.<br />
+	</div>
+
+<?php elseif ($this->param("process") == "warning"): ?>
+
+	<div class="ui yellow message">
+		<p>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+		</p>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php elseif ($this->param("process") == "error"): ?>
+
+	<div class="ui negative message">
+		<div class="header">
+			Error!
+		</div>
+		<p>
+			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+		</p>
+	</div>
+
+<?php endif; ?>

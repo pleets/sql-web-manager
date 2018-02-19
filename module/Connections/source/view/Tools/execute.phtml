@@ -1,9 +1,10 @@
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php
+		$conn      = $this->param("conn");
 		$worksheet = $this->param("worksheet");
 		$selectStm = $this->param("selectStm");
-		$showStm = $this->param("showStm");
+		$showStm   = $this->param("showStm");
 		$data      = $this->param("data");
 		$uniqid    = uniqid();
 
@@ -216,13 +217,17 @@
 		<div class="ui modal" id="app-export-data">
 			<div class="header">Export assistant</div>
 			<div class="content">
-				<form class="ui form" id="frm-add-user-connection" data-role="ajax-request" data-response="#add-user-connection-response"
-					action="<?= $this->basePath() ?>/public/Connections/User/addConnection" method="post">
+				<form class="ui form" id="frm-export-assistant" data-role="ajax-request" data-response="#exporting-response-<?= $uniqid ?>"
+					action="<?= $this->basePath() ?>/public/Connections/Tools/export" method="post">
+					<input type="hidden" name="conn" id="export-conn" value="<?= $conn ?>">
+					<input type="hidden" name="sql" id="export-sql" value="<?= $this->param('sql') ?>">
+					<input type="hidden" name="base64" value="1">
 					<div class="fields">
 						<div class="eight wide field">
 							<label for="type">Type</label>
 							<select class="ui dropdown" name="type" id="type">
 								<option value="excel">Excel</option>
+								<option value="csv">CSV</option>
 							</select>
 						</div>
 						<div class="eight wide field">
@@ -232,6 +237,7 @@
 					</div>
 					<button class="ui submit button"><i class="check icon"></i> Export</button>
 				</form><br />
+				<div id="exporting-response-<?= $uniqid ?>"></div>
 			</div>
 		</div>
 

@@ -17,9 +17,12 @@ use Drone\Mvc\AbstractionController;
 use Drone\Network\Http;
 use Drone\Validator\FormValidator;
 use Utils\Model\Entity as EntityMd;
+use Drone\Error\Errno;
 
 class Tools extends AbstractionController
 {
+    use \Drone\Error\ErrorTrait;
+
     /**
      * @var integer
      */
@@ -415,6 +418,7 @@ class Tools extends AbstractionController
             $data["worksheet"] = $post["worksheet"];
 
             $id = $post["conn"];
+            $data["conn"] = $id;
 
             $connection = $this->getUserConnectionEntity()->select([
                 "USER_CONN_ID" => $id
@@ -727,6 +731,411 @@ class Tools extends AbstractionController
                 $errors = $storage->getErrors();
                 $this->handleErrors($errors, __METHOD__);
             }
+
+            $data["code"]    = $errorCode;
+            $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # redirect view
+            $this->setMethod('error');
+
+            return $data;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Exports a statement
+     *
+     * @return array
+     */
+    public function export()
+    {
+        clearstatcache();
+        session_write_close();
+
+        # data to send
+        $data = [];
+
+        # environment settings
+        $post = $this->getPost();           # catch $_POST
+        $this->setTerminal(true);           # set terminal
+
+        # TRY-CATCH-BLOCK
+        try {
+
+            # STANDARD VALIDATIONS [check method]
+            if (!$this->isPost())
+            {
+                $http = new Http();
+                $http->writeStatus($http::HTTP_METHOD_NOT_ALLOWED);
+
+                die('Error ' . $http::HTTP_METHOD_NOT_ALLOWED .' (' . $http->getStatusText($http::HTTP_METHOD_NOT_ALLOWED) . ')!!');
+            }
+
+            # STANDARD VALIDATIONS [check needed arguments]
+            $needles = ['conn', 'sql', 'type', 'filename'];
+
+            array_walk($needles, function(&$item) use ($post) {
+                if (!array_key_exists($item, $post))
+                {
+                    $http = new Http();
+                    $http->writeStatus($http::HTTP_BAD_REQUEST);
+
+                    die('Error ' . $http::HTTP_BAD_REQUEST .' (' . $http->getStatusText($http::HTTP_BAD_REQUEST) . ')!!');
+                }
+            });
+
+            $id = $post["conn"];
+
+            $connection = $this->getUserConnectionEntity()->select([
+                "USER_CONN_ID" => $id
+            ]);
+
+            if (!count($connection))
+                throw new \Exception("The Connection does not exists!");
+
+            $connection = array_shift($connection);
+
+            if ($connection->STATE == 'I')
+                throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+
+            $details = $this->getUserConnectionDetailsEntity()->select([
+                "USER_CONN_ID" => $id
+            ]);
+
+            $idenfiers = $this->getIdentifiersEntity()->select([]);
+
+            $dbconfig = [];
+
+            foreach ($details as $field)
+            {
+                foreach ($idenfiers as $identifier)
+                {
+                    if ($field->CONN_IDENTI_ID == $identifier->CONN_IDENTI_ID)
+                        $dbconfig[$identifier->CONN_IDENTI_NAME] = $field->FIELD_VALUE;
+                }
+            }
+
+            /* identifies if sql is base64 encoded */
+            if (array_key_exists('base64', $post))
+            {
+                if ((bool) $post["base64"])
+                    $post["sql"] = base64_decode($post["sql"]);
+            }
+
+            $data["sql"] = base64_encode($post["sql"]);
+
+            $sql_text = $post["sql"];
+
+            /*
+             * SQL parsing
+             */
+            $sql_text = trim($sql_text);
+
+            if (empty($sql_text))
+                throw new \Drone\Exception\Exception("Empty statement!");
+
+            $pos = strpos($sql_text, ';');
+
+            if ($pos !== false)
+            {
+                $end_stament = strstr($sql_text, ';');
+
+                if ($end_stament == ';')
+                    $sql_text = strstr($sql_text, ';', true);
+            }
+
+            # indicates if SQL is a selection statement
+            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $sql_text));
+
+            # indicates if SQL is a show statement
+            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $sql_text));
+
+            # detect selection
+            if (!$isSelectStm && !$isShowStm)
+                throw new \Exception("You can't export a non-selection statement!");
+
+            try {
+
+                $connError = false;
+
+                $entity = new EntityMd([]);
+                $entity->setConnectionIdentifier("CONN" . $id);
+
+                $driverAdapter = new \Drone\Db\Driver\DriverAdapter($dbconfig, false);
+
+                # start time to compute execution
+                $startTime = microtime(true);
+
+                $driverAdapter->getDb()->connect();
+
+                $auth = $driverAdapter;
+
+                $data["results"] = $auth->getDb()->execute($sql_text);
+            }
+            # encapsulate real connection error!
+            catch (\Drone\Db\Driver\Exception\ConnectionException $e)
+            {
+                $connError = true;
+
+                $file = str_replace('\\', '', __CLASS__);
+                $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+                if (($errorCode = $storage->store($e)) === false)
+                {
+                    $errors = $storage->getErrors();
+                    $this->handleErrors($errors, __METHOD__);
+                }
+
+                $data["code"]    = $errorCode;
+                $data["message"] = "Could not connect to database!";
+
+                # to identify development mode
+                $config = include 'config/application.config.php';
+                $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+                # redirect view
+                $this->setMethod('error');
+            }
+            catch (\Exception $e)
+            {
+                # SUCCESS-MESSAGE
+                $data["process"] = "error";
+                $data["message"] = $e->getMessage();
+
+                return $data;
+            }
+
+            # end time to compute execution
+            $endTime = microtime(true);
+            $elapsed_time = $endTime - $startTime;
+
+            $data["time"] = round($elapsed_time, 4);
+
+            if (!$connError)
+            {
+                $data["num_rows"]      = $auth->getDb()->getNumRows();
+                $data["num_fields"]    = $auth->getDb()->getNumFields();
+                $data["rows_affected"] = $auth->getDb()->getRowsAffected();
+
+                $rows = $auth->getDb()->getArrayResult();
+
+                $data["data"] = [];
+
+                # columns with errors in a select statement
+                $column_errors = [];
+
+                switch ($post["type"])
+                {
+                    case 'excel':
+                        $ext = '.xlsx';
+                        break;
+                    case 'csv':
+                        $ext = '.csv';
+                        break;
+                    default:
+                        $ext = '.txt';
+                        break;
+                }
+
+                $filename = $post["filename"] . $ext;
+
+                $file_hd = @fopen("cache/" . $filename, "w+");
+
+                if (!$file_hd)
+                {
+                    $this->error(Errno::FILE_PERMISSION_DENIED, "cache/" . $filename);
+                    throw new \Exception("The file could not be created!");
+                }
+
+                $contents = "";
+
+                switch ($post["type"])
+                {
+                    case 'excel':
+
+                        $table = "<table border=1>";
+
+                        $column_names = [];
+
+                        foreach ($rows[0] as $column_name => $row)
+                        {
+                            if (!is_numeric($column_name))
+                                $column_names[] = $column_name;
+                        }
+
+                        $table .= "<thead><tr>";
+
+                        foreach ($column_names as $column_name)
+                        {
+                            $table .= "<th>$column_name</th>";
+                        }
+
+                        $table .= "<tr></thead><tbody>";
+
+                        # data parsing
+                        foreach ($rows as $key => $row)
+                        {
+                            $data["data"][$key] = [];
+
+                            foreach ($row as $column => $value)
+                            {
+                                if ($isShowStm)
+                                    $column++;
+
+                                if (gettype($value) == 'object')
+                                {
+                                    if  (get_class($value) == 'OCI-Lob')
+                                    {
+                                        if (($val = @$value->load()) === false)
+                                        {
+                                            $val = null;   # only for default, this value is not used
+                                            $column_errors[] = $column;
+                                        }
+
+                                        $data["data"][$key][$column] = $val;
+                                    }
+                                    else
+                                        $data["data"][$key][$column] = $value;
+                                }
+                                else {
+                                    $data["data"][$key][$column] = $value;
+                                }
+                            }
+
+                            foreach ($data["data"] as $row)
+                            {
+                                $table .= "<tr>";
+
+                                foreach ($column_names as $column_name)
+                                {
+                                    $table .= "<td>". $row[$column_name] ."</td>";
+                                }
+
+                                $table .= "</tr>";
+                            }
+                        }
+
+                        $table .= "</tbody></table>";
+                        $contents = $table;
+
+                        break;
+
+                    case 'csv':
+
+                        $text = "";
+
+                        $column_names = [];
+
+                        foreach ($rows[0] as $column_name => $row)
+                        {
+                            if (!is_numeric($column_name))
+                                $column_names[] = $column_name;
+                        }
+
+                        foreach ($column_names as $column_name)
+                        {
+                            $text .= "$column_name;";
+                        }
+
+                        $text .= "\r\n";
+
+                        # data parsing
+                        foreach ($rows as $key => $row)
+                        {
+                            $data["data"][$key] = [];
+
+                            foreach ($row as $column => $value)
+                            {
+                                if ($isShowStm)
+                                    $column++;
+
+                                if (gettype($value) == 'object')
+                                {
+                                    if  (get_class($value) == 'OCI-Lob')
+                                    {
+                                        if (($val = @$value->load()) === false)
+                                        {
+                                            $val = null;   # only for default, this value is not used
+                                            $column_errors[] = $column;
+                                        }
+
+                                        $data["data"][$key][$column] = $val;
+                                    }
+                                    else
+                                        $data["data"][$key][$column] = $value;
+                                }
+                                else {
+                                    $data["data"][$key][$column] = $value;
+                                }
+                            }
+
+                            foreach ($data["data"] as $row)
+                            {
+                                foreach ($column_names as $column_name)
+                                {
+                                    $text .= $row[$column_name] . ";";
+                                }
+
+                                $text .= "\r\n";
+                            }
+                        }
+
+                        $contents = $text;
+
+                        break;
+
+                    default:
+                        # code...
+                        break;
+                }
+
+                if (!@fwrite($file_hd, $contents))
+                {
+                    $this->error(Errno::FILE_PERMISSION_DENIED, "cache/" . $filename);
+                    throw new \Exception("The file could not be generated!");
+                }
+
+                @fclose($file_hd);
+
+                $data["column_errors"] = $column_errors;
+
+                $data["filename"] = $filename;
+
+                if (array_key_exists('id', $post))
+                    $data["id"] = $post["id"];
+
+                # SUCCESS-MESSAGE
+                $data["process"] = "success";
+            }
+        }
+        catch (\Drone\Exception\Exception $e)
+        {
+            # ERROR-MESSAGE
+            $data["process"] = "warning";
+            $data["message"] = $e->getMessage();
+        }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
+
+            # stores the error code
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
+                $this->handleErrors($errors, __METHOD__);
+            }
+
+            # errors retrived by the use of ErrorTrait
+            if (count($this->getErrors()))
+                $this->handleErrors($this->getErrors(), __METHOD__);
 
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
