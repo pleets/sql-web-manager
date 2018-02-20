@@ -924,8 +924,6 @@ class Tools extends AbstractionController
 
                 $rows = $auth->getDb()->getArrayResult();
 
-                $data["data"] = [];
-
                 # columns with errors in a select statement
                 $column_errors = [];
 
@@ -953,6 +951,8 @@ class Tools extends AbstractionController
                 }
 
                 $contents = "";
+
+                $data["data"] = [];
 
                 switch ($post["type"])
                 {
@@ -1007,17 +1007,18 @@ class Tools extends AbstractionController
                                 }
                             }
 
-                            foreach ($data["data"] as $row)
+                        }
+
+                        foreach ($data["data"] as $row)
+                        {
+                            $table .= "<tr>";
+
+                            foreach ($column_names as $column_name)
                             {
-                                $table .= "<tr>";
-
-                                foreach ($column_names as $column_name)
-                                {
-                                    $table .= "<td>". $row[$column_name] ."</td>";
-                                }
-
-                                $table .= "</tr>";
+                                $table .= "<td>". $row[$column_name] ."</td>";
                             }
+
+                            $table .= "</tr>";
                         }
 
                         $table .= "</tbody></table>";
@@ -1073,16 +1074,16 @@ class Tools extends AbstractionController
                                     $data["data"][$key][$column] = $value;
                                 }
                             }
+                        }
 
-                            foreach ($data["data"] as $row)
+                        foreach ($data["data"] as $row)
+                        {
+                            foreach ($column_names as $column_name)
                             {
-                                foreach ($column_names as $column_name)
-                                {
-                                    $text .= $row[$column_name] . ";";
-                                }
-
-                                $text .= "\r\n";
+                                $text .= $row[$column_name] . ";";
                             }
+
+                            $text .= "\r\n";
                         }
 
                         $contents = $text;
