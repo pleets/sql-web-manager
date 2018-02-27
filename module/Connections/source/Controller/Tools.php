@@ -930,7 +930,7 @@ class Tools extends AbstractionController
                 switch ($post["type"])
                 {
                     case 'excel':
-                        $ext = '.xlsx';
+                        $ext = '.xls';
                         break;
                     case 'csv':
                         $ext = '.csv';
@@ -958,7 +958,15 @@ class Tools extends AbstractionController
                 {
                     case 'excel':
 
-                        $table = "<table border=1>";
+                        $table = "<html xmlns:v='urn:schemas-microsoft-com:vml' \r\n\txmlns:o='urn:schemas-microsoft-com:office:office'\r\n";
+                        $table .= "\txmlns:x='urn:schemas-microsoft-com:office:excel'\r\n";
+                        $table .= "\txmlns='http://www.w3.org/TR/REC-html40'>\r\n";
+
+                        $table .= "<head>\r\n";
+                        $table .= "\t<meta name='Excel Workbook Frameset'><meta http-equiv='Content-Type' content='text/html; charset='utf-8'>\r\n";
+                        $table .= "</head>\r\n\r\n";
+
+                        $table .= "<body>\r\n<table border=1>\r\n";
 
                         $column_names = [];
 
@@ -968,14 +976,14 @@ class Tools extends AbstractionController
                                 $column_names[] = $column_name;
                         }
 
-                        $table .= "<thead><tr>";
+                        $table .= "\t<thead>\r\n\t\t<tr>\r\n";
 
                         foreach ($column_names as $column_name)
                         {
-                            $table .= "<th>$column_name</th>";
+                            $table .= "\t\t\t<th>$column_name</th>\r\n";
                         }
 
-                        $table .= "<tr></thead><tbody>";
+                        $table .= "\t\t</tr>\r\n\t</thead>\r\n\t<tbody>";
 
                         # data parsing
                         foreach ($rows as $key => $row)
@@ -1011,17 +1019,17 @@ class Tools extends AbstractionController
 
                         foreach ($data["data"] as $row)
                         {
-                            $table .= "<tr>";
+                            $table .= "\t\t<tr>\r\n";
 
                             foreach ($column_names as $column_name)
                             {
-                                $table .= "<td>". $row[$column_name] ."</td>";
+                                $table .= "\t\t\t<td>". $row[$column_name] ."</td>\r\n";
                             }
 
-                            $table .= "</tr>";
+                            $table .= "\t\t</tr>\r\n";
                         }
 
-                        $table .= "</tbody></table>";
+                        $table .= "\t</tbody>\r\n</table>\r\n</body>\r\n</html>";
                         $contents = $table;
 
                         break;

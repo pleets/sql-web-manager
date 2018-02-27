@@ -202,7 +202,7 @@
 					View
 				</a>
 				<a class="teal item" onclick="
-					$('#app-export-data').modal('show');
+					$('#app-export-data-<?= $uniqid ?>').modal('show');
 					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
 					Export to XLS
 				</a>
@@ -214,10 +214,10 @@
 			<div class="content"></div>
 		</div>
 
-		<div class="ui modal" id="app-export-data">
+		<div class="ui modal" id="app-export-data-<?= $uniqid ?>">
 			<div class="header">Export assistant</div>
 			<div class="content">
-				<form class="ui form" id="frm-export-assistant" data-role="ajax-request" data-response="#exporting-response-<?= $uniqid ?>"
+				<form class="ui form" data-role="ajax-request" data-response="#exporting-response-<?= $uniqid ?>"
 					action="<?= $this->basePath() ?>/public/Connections/Tools/export" method="post">
 					<input type="hidden" name="conn" id="export-conn" value="<?= $conn ?>">
 					<input type="hidden" name="sql" id="export-sql" value="<?= $this->param('sql') ?>">

@@ -9,6 +9,7 @@ $(function(){
 
         var formObject = $(this);
 
+        formObject.addClass('loading');
         formObject.find("input").attr("readonly", "readonly");
         formObject.find("select").attr("readonly", "readonly");
         formObject.find("button[type='submit']").attr("disabled", "disabled");
@@ -64,6 +65,7 @@ $(function(){
                 formObject.find("input").removeAttr("readonly");
                 formObject.find("select").removeAttr("readonly");
                 formObject.find("button[type='submit']").removeAttr("disabled");
+                formObject.removeClass('loading');
                 call.success(data);
             }
         });
