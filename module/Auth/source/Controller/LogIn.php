@@ -256,8 +256,6 @@ class LogIn extends AbstractionController
 
             # redirect view
             $this->setMethod('error');
-
-            return $data;
         }
         /*
          * Extra information about errors!
@@ -267,6 +265,7 @@ class LogIn extends AbstractionController
         {
             # to identify development mode
             $config = include 'config/application.config.php';
+
             $data["dev_mode"] = $config["environment"]["dev_mode"];
 
             if (!is_null($this->usersEntity))
