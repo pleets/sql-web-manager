@@ -222,24 +222,6 @@ class LogIn extends AbstractionController
             $data["process"] = "warning";
             $data["message"] = $e->getMessage();
         }
-        # encapsulate real connection error!
-        catch (\Drone\Db\Driver\Exception\ConnectionException $e)
-        {
-            $file = str_replace('\\', '', __CLASS__);
-            $storage = new \Drone\Exception\Storage("cache/$file.json");
-
-            if (($errorCode = $storage->store($e)) === false)
-            {
-                $errors = $storage->getErrors();
-                $this->handleErrors($errors, __METHOD__);
-            }
-
-            $data["code"]    = $errorCode;
-            $data["message"] = "Could not connect to database!";
-
-            # redirect view
-            $this->setMethod('error');
-        }
         catch (\Exception $e)
         {
             $file = str_replace('\\', '', __CLASS__);
@@ -254,25 +236,13 @@ class LogIn extends AbstractionController
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
 
-            # redirect view
-            $this->setMethod('error');
-        }
-        /*
-         * Extra information about errors!
-         * keep in mind that some errors are not throwed, i.e. are not exceptions.
-         */
-        finally
-        {
-            # to identify development mode
             $config = include 'config/application.config.php';
-
             $data["dev_mode"] = $config["environment"]["dev_mode"];
 
-            if (!is_null($this->usersEntity))
-            {
-                $dbErrors = $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->getErrors();
-                $this->handleErrors($dbErrors, __METHOD__);
-            }
+            # redirect view
+            $this->setMethod('error');
+
+            return $data;
         }
 
         return $data;
