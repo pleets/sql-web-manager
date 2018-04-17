@@ -21,5 +21,5 @@ return [
 			]
 		]
 	],
-	"redirect" => "Dashboard"
+	"redirect" => "Workarea"
 ];

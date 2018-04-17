@@ -5,8 +5,8 @@ return [
     'modules' => [
         'Auth',
         'Catcher',
+        'Workarea',
         'Connections',
-        'Dashboard',
     ],
     'router' => [
         'routes' => [

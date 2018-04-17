@@ -1,6 +1,6 @@
 <?php
 
-namespace Dashboard\Controller;
+namespace Workarea\Controller;
 
 use Drone\Mvc\AbstractionController;
 use Exception;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Connections\Controller;
+namespace Workarea\Controller;
 
 use Drone\Mvc\AbstractionController;
 use Drone\Dom\Element\Form;
@@ -9,13 +9,13 @@ use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
 use Drone\Network\Http;
 use Auth\Model\User as UserModel;
-use Connections\Model\ConnectionType;
-use Connections\Model\ConnectionTypeField;
-use Connections\Model\UserConnection;
-use Connections\Model\UserConnectionsTable;
-use Connections\Model\UserConnectionDetails;
+use Workarea\Model\ConnectionType;
+use Workarea\Model\ConnectionTypeField;
+use Workarea\Model\UserConnection;
+use Workarea\Model\UserConnectionsTable;
+use Workarea\Model\UserConnectionDetails;
 
-class User extends AbstractionController
+class Connections extends AbstractionController
 {
     /**
      * @var integer
@@ -150,7 +150,7 @@ class User extends AbstractionController
      *
      * @return array
      */
-    public function listConnections()
+    public function list()
     {
         # data to send
         $data = array();
@@ -189,9 +189,12 @@ class User extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 
@@ -215,7 +218,7 @@ class User extends AbstractionController
      *
      * @return array
      */
-    public function deleteConnection()
+    public function delete()
     {
         clearstatcache();
         session_write_close();
@@ -313,37 +316,25 @@ class User extends AbstractionController
             $data["process"] = "warning";
             $data["message"] = $e->getMessage();
         }
-        # encapsulate real connection error!
-        catch (\Drone\Db\Driver\Exception\ConnectionException $e)
-        {
-            $file = str_replace('\\', '', __CLASS__);
-            $storage = new \Drone\Exception\Storage("cache/$file.json");
-
-            if (($errorCode = $storage->store($e)) === false)
-            {
-                $errors = $storage->getErrors();
-                $this->handleErrors($errors, __METHOD__);
-            }
-
-            $data["code"]    = $errorCode;
-            $data["message"] = "Could not connect to database!";
-
-            # redirect view
-            $this->setMethod('error');
-        }
         catch (\Exception $e)
         {
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
 
             # redirect view
             $this->setMethod('error');
@@ -359,7 +350,7 @@ class User extends AbstractionController
      *
      * @return array
      */
-    public function addConnection()
+    public function add()
     {
         clearstatcache();
         session_write_close();
@@ -444,7 +435,7 @@ class User extends AbstractionController
                         ],
                     ],
                     "field" => [
-                        "label"      => "Connection Param"
+                        "label"      => "Connection Parameter"
                     ],
                 ];
 
@@ -460,7 +451,7 @@ class User extends AbstractionController
                 if (!$validator->isValid())
                 {
                     $data["messages"] = $validator->getMessages();
-                    throw new \Drone\Exception\Exception("Form validation errors!", 300);
+                    throw new \Drone\Exception\Exception("Form validation errors", 300);
                 }
 
                 $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
@@ -515,9 +506,12 @@ class User extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 
@@ -541,7 +535,7 @@ class User extends AbstractionController
      *
      * @return array
      */
-    public function editConnection()
+    public function edit()
     {
         clearstatcache();
         session_write_close();
@@ -749,9 +743,12 @@ class User extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 

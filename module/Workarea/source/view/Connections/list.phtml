@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php $connections = $this->param('connections'); ?>
@@ -11,25 +13,25 @@
 						<div class="menu">
 							<div class="header"><?= $connection->CONNECTION_NAME ?></div>
 							<div class="item btn-new-worksheet" data-id="<?= $connection->USER_CONN_ID ?>" data-name="<?= $connection->CONNECTION_NAME ?>">
-								<i class="icon terminal"></i> New Worksheet
+								<i class="icon terminal"></i> <?= $intl->translate('New Worksheet') ?>
 							</div>
 							<div class="item" data-role="ajax-request" data-response="#delete-connection-response" data-type="post"
-								 data-url="<?= $this->basePath() ?>/public/Connections/User/deleteConnection"
+								 data-url="<?= $this->basePath() ?>/public/Workarea/Connections/delete"
 								 data-object="v = { id: '<?= $connection->USER_CONN_ID ?>' }"
 								 data-callback="v = {
 									before: function() { $('#md-delete-connection').modal('show'); },
 									success: function() { $('#md-delete-connection').modal('refresh'); },
-								 }"><i class="icon trash"></i> Delete</div>
+								 }"><i class="icon trash"></i> <?= $intl->translate('Delete') ?></div>
 						</div>
 					</div>
 			    </div>
 				<i class="teal large database middle aligned icon"></i>
 				<div class="content view">
-					<a class="header" data-url="<?= $this->basePath() ?>/public/Connections/User/editConnection/id/<?= $connection->USER_CONN_ID ?>"
+					<a class="header" data-url="<?= $this->basePath() ?>/public/Workarea/Connections/edit/id/<?= $connection->USER_CONN_ID ?>"
 						data-role="ajax-request" data-type="get" data-response="#activity-response">
 						<?= $connection->CONNECTION_NAME ?>
 					</a>
-					<div class="description">database</div>
+					<div class="description"><?= $intl->translate('database') ?></div>
 				</div>
 				<a class="ui red circular label connection-id" onclick="$('#connection-options-<?= $connection->USER_CONN_ID ?>').trigger('click')"><?= $connection->USER_CONN_ID ?></a>
 			</div>
@@ -37,7 +39,7 @@
 	<?php else: ?>
 		<div class="ui info message">
 			<p>
-				<strong><i class="warning icon"></i></strong> There aren't connections!
+				<strong><i class="warning icon"></i></strong> <?= $intl->translate("There aren't connections") ?>!
 			</p>
 		</div>
 	<?php endif; ?>
@@ -50,7 +52,7 @@
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -58,7 +60,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>

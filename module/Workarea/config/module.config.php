@@ -3,8 +3,8 @@
 return [
     'router' => [
         'routes' => [
-        	'Dashboard' => [
-        		'module' => 'Dashboad',
+        	'Workarea' => [
+        		'module' => 'Workarea',
         		'controller' => 'Start',
         		'view' => 'index'
         	]
@@ -12,7 +12,7 @@ return [
     ],
     'view_manager' => [
         'template_map' => [
-            'default'	=> __DIR__ . '/../view/layout/dashboard.phtml',
+            'default'	=> __DIR__ . '/../view/layout/workarea.phtml',
         ],
     ],
 ];

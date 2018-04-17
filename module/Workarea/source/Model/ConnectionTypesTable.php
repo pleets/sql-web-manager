@@ -1,6 +1,6 @@
 <?php
 
-namespace Connections\Model;
+namespace Workarea\Model;
 
 use Drone\Db\TableGateway;
 

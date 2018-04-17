@@ -1,13 +1,15 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php $id = $this->param("id"); ?>
 
 	<div class="ui success message">
 		<div class="header">
-			Success!
+			<?= $intl->translate('Success') ?>!
 		</div>
 		<p>
-			<strong><i class="warning checkmark icon"></i></strong> Connection deleted!
+			<strong><i class="warning checkmark icon"></i></strong> <?= $intl->translate('Connection deleted') ?>!
 		</p>
 	</div>
 
@@ -21,7 +23,7 @@
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -29,7 +31,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>

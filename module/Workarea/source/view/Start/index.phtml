@@ -1,11 +1,16 @@
+<?php
+    $intl = $this->getController()->translator;
+    $this->setTitle($intl->translate(""));
+?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<div class="ui tabular menu">
 		<a class="item active" data-tab="tab-1">
-			Workarea
+			<?= $intl->translate('Workarea') ?>
 		</a>
 		<a class="item" href="<?= $this->basePath() ?>/public/Auth/LogOut/close">
-			<i class="power icon"></i> Logout
+			<i class="power icon"></i> <?= $intl->translate('Log out') ?>
 		</a>
 	</div>
 
@@ -14,7 +19,7 @@
 			<div class="three wide column">
 				<div class="ui icon buttons">
 					<button class="ui button" data-toggle="modal"
-							data-url="<?= $this->basePath() ?>/public/Connections/User/addConnection" title="Add connection"
+							data-url="<?= $this->basePath() ?>/public/Workarea/Connections/add" title="Add connection"
 							data-role="ajax-request" data-type="get" data-response="#add-connection-response"
 							data-callback="v = {
 								before: function() { $('#md-add-connection').modal('show'); },
@@ -22,7 +27,7 @@
 							}">
 						<i class="plus icon"></i>
 					</button>
-					<button class="ui button" data-url="<?= $this->basePath() ?>/public/Connections/User/listConnections"
+					<button class="ui button" data-url="<?= $this->basePath() ?>/public/Workarea/Connections/list"
 						data-role="ajax-request" data-type="get" data-response="#list-connections-response" id="btn-list-connections">
 						<i class="refresh icon"></i>
 					</button>
@@ -60,24 +65,24 @@
 			</div>
 			<div class="twelve wide column" id="worksheet-collector">
 				<div class="ui pointing secondary menu" style="overflow-x: auto">
-					<a class="active item worksheet-item-title" data-tab="home">Home</a>
+					<a class="active item worksheet-item-title" data-tab="home"><?= $intl->translate('Home') ?></a>
 				</div>
 				<div class="ui active tab vertical segment worksheet-item-content" data-tab="home" data-resource="<?= $this->basePath() ?>/public/Connections/Tools/worksheet">
-					<div id="activity-response">Welcome to SQL Web Manager!</div>
+					<div id="activity-response"><?= $intl->translate('Welcome to SQL Web Manager') ?>!</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<div class="ui modal" id="md-add-connection">
-		<div class="header">Add connection</div>
+		<div class="header"><?= $intl->translate('Add connection') ?></div>
 		<div class="content">
 			<div id="add-connection-response"></div>
 		</div>
 	</div>
 
 	<div class="ui modal" id="md-delete-connection">
-		<div class="header">Delete connection</div>
+		<div class="header"><?= $intl->translate('Delete connection') ?></div>
 		<div class="content">
 			<div id="delete-connection-response"></div>
 		</div>

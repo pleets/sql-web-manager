@@ -4,12 +4,12 @@ namespace Connections\Controller;
 
 use Auth\Model\User as UserModel;
 use Connections\Model\Authentication;
-use Connections\Model\ConnectionType;
-use Connections\Model\ConnectionTypeField;
-use Connections\Model\Identifiers;
-use Connections\Model\UserConnection;
-use Connections\Model\UserConnectionsTable;
-use Connections\Model\UserConnectionDetails;
+use Workarea\Model\ConnectionType;
+use Workarea\Model\ConnectionTypeField;
+use Workarea\Model\Identifiers;
+use Workarea\Model\UserConnection;
+use Workarea\Model\UserConnectionsTable;
+use Workarea\Model\UserConnectionDetails;
 use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
 use Drone\Dom\Element\Form;

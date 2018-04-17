@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "update-form"): ?>
 
 	<?php
@@ -9,11 +11,11 @@
 	?>
 
 	<form class="ui form" id="frm-update-user-connection" data-role="ajax-request" data-response="#edit-user-connection-response"
-		action="<?= $this->basePath() ?>/public/Connections/User/editConnection" method="post">
+		action="<?= $this->basePath() ?>/public/Workarea/Connections/edit" method="post">
 		<input type="hidden" name="_conn_id" value="<?= $connection->USER_CONN_ID ?>" />
 		<div class="fields">
 			<div class="eight wide field">
-				<label for="conntype">Connection Type</label>
+				<label for="conntype"><?= $intl->translate('Connection type') ?></label>
 				<select name="type" id="conntype" onchange="
 						var type = $(this).val();
 						var fieldTypes = $(this).parent().parent().parent().find('.fields.type');
@@ -26,15 +28,15 @@
 								$(htmlEl).hide().find('input').val('');
 						});
 					">
-					<option value="">Selection</option>
+					<option value=""><?= $intl->translate('Selection') ?></option>
 					<?php foreach ($types as $type): ?>
 						<option value="<?= $type->CONN_TYPE_ID ?>" <?= ($type->CONN_TYPE_ID == $connection->CONN_TYPE_ID) ? "selected='selected'" : "" ?>><?= $type->CONN_TYPE_NAME ?></option>
 					<?php endforeach; ?>
 				</select>
 			</div>
 			<div class="eight wide field">
-				<label for="aliasname">Connection name</label>
-				<input type="text" id="aliasname" name="aliasname" placeholder="alias for your connection" value="<?= $connection->CONNECTION_NAME ?>" />
+				<label for="aliasname"><?= $intl->translate('Connection name') ?></label>
+				<input type="text" id="aliasname" name="aliasname" placeholder="<?= $intl->translate('alias for your connection') ?>" value="<?= $connection->CONNECTION_NAME ?>" />
 			</div>
 		</div>
 		<?php foreach ($fieldTypes as $type => $fields): ?>
@@ -47,11 +49,11 @@
 				<?php endforeach; ?>
 			</div>
 		<?php endforeach; ?>
-		<button class="ui submit button"><i class="check icon"></i> Save</button>
+		<button class="ui submit button"><i class="check icon"></i> <?= $intl->translate('Save') ?></button>
 		<button class="ui button" type="button" data-role="ajax-request" data-type="post"
 			data-url="<?= $this->basePath() ?>/public/Connections/Tools/testConnection"
 			data-response="#edit-user-connection-response" data-form="#frm-update-user-connection"
-			><i class="play icon"></i> Test</button>
+			><i class="play icon"></i> <?= $intl->translate('Test') ?></button>
 	</form><br />
 
 	<div id="edit-user-connection-response"></div>
@@ -65,10 +67,10 @@
 
 	<div class="ui success message">
 		<div class="header">
-			Success!
+			<?= $intl->translate('Success') ?>!
 		</div>
 		<p>
-			<strong><i class="warning checkmark icon"></i></strong> Connection updated!
+			<strong><i class="warning checkmark icon"></i></strong> <?= $intl->translate('Conection updated') ?>!
 		</p>
 	</div>
 
@@ -80,7 +82,7 @@
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -88,7 +90,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>

@@ -1,15 +1,15 @@
 <?php
 
-namespace Connections\Model;
+namespace Workarea\Model;
 
 use Drone\Db\Entity;
 
-class ConnectionTypeField extends Entity
+class UserConnectionDetails extends Entity
 {
 	/**
 	* @var integer
 	*/
-	public $CONN_TYPE_ID;
+	public $USER_CONN_ID;
 
 	/**
 	* @var integer
@@ -19,16 +19,11 @@ class ConnectionTypeField extends Entity
 	/**
 	* @var string
 	*/
-	public $FIELD_NAME;
-
-	/**
-	* @var string
-	*/
-	public $PLACEHOLDER;
+	public $FIELD_VALUE;
 
     public function __construct($data = [])
     {
     	parent::__construct($data);
-        $this->setTableName("SWM_CONN_TYPE_FIELDS");
+        $this->setTableName("SWM_USER_CONN_DETAILS");
     }
 }
