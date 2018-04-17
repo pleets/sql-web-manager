@@ -3,7 +3,6 @@
 return [
     // Each new module must be declared as follow
     'modules' => [
-        'App',
         'Auth',
         'Catcher',
         'Connections',
