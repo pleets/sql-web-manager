@@ -271,11 +271,18 @@ class SingUp extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
+
+            # errors retrived by the use of ErrorTrait
+            if (count($this->getErrors()))
+                $this->handleErrors($this->getErrors(), __METHOD__);
 
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();
@@ -364,11 +371,18 @@ class SingUp extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
+
+            # errors retrived by the use of ErrorTrait
+            if (count($this->getErrors()))
+                $this->handleErrors($this->getErrors(), __METHOD__);
 
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();

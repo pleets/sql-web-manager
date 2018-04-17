@@ -10,25 +10,28 @@ use Drone\Mvc\AbstractionController;
 use Drone\Network\Http;
 use Drone\Validator\FormValidator;
 use Zend\Crypt\Password\Bcrypt;
+use Drone\Error\Errno;
 
 class LogIn extends AbstractionController
 {
+    use \Drone\Error\ErrorTrait;
+
     /**
      * @var EntityAdapter
      */
-    private $usersEntity;
+    private $usersAdapter;
 
     /**
      * @return EntityAdapter
      */
-    private function getUsersEntity()
+    private function getUsersAdapter()
     {
-        if (!is_null($this->usersEntity))
-            return $this->usersEntity;
+        if (!is_null($this->usersAdapter))
+            return $this->usersAdapter;
 
-        $this->usersEntity = new EntityAdapter(new TableGateway(new User()));
+        $this->usersAdapter = new EntityAdapter(new TableGateway(new User()));
 
-        return $this->usersEntity;
+        return $this->usersAdapter;
     }
 
     /**
@@ -176,10 +179,11 @@ class LogIn extends AbstractionController
             }
 
             $config = include 'module/Auth/config/user.config.php';
+
             $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
             $password_str = $config["authentication"]["gateway"]["credentials"]["password"];
 
-            $row = $this->getUsersEntity()->select([
+            $row = $this->getUsersAdapter()->select([
                 "$username_str" => $post["username"]
             ]);
 
@@ -227,11 +231,18 @@ class LogIn extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
+
+            # errors retrived by the use of ErrorTrait
+            if (count($this->getErrors()))
+                $this->handleErrors($this->getErrors(), __METHOD__);
 
             $data["code"]    = $errorCode;
             $data["message"] = $e->getMessage();

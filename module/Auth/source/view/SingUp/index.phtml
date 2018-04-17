@@ -1,46 +1,46 @@
-<?php $this->setTitle("Registro de usuario"); ?>
+<?php
+    $intl = $this->getController()->translator;
+    $this->setTitle($intl->translate("User registering"));
+?>
 
-<h3>
-    <span class="glyphicon glyphicon-user"><small><span class="glyphicon glyphicon-plus-sign"></span></small></span>
-    Register form
-</h3>
+<h3> <?= $intl->translate('Register form') ?> </h3>
 
 <form id="frm-singup" method="post" data-response="#singup-response" data-role='ajax-request'
     action="<?= $this->basePath() . '/public/Auth/SingUp/attemp' ?>">
     <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username"><?= $intl->translate("Username") ?></label>
         <div class="input-group">
             <div class="input-group-addon transparent"><span class="glyphicon glyphicon-user"></span></div>
-            <input autofocus="autofocus" type="text" id="username" name="username" placeholder="username" class="form-control" required="required" maxlength="20" />
+            <input autofocus="autofocus" type="text" id="username" name="username" placeholder="<?= $intl->translate("username") ?>" class="form-control" required="required" maxlength="20" />
         </div>
     </div>
     <div class="form-group">
-        <label for="email">Email</label>
+        <label for="email"><?= $intl->translate("Email") ?></label>
         <div class="input-group">
             <div class="input-group-addon transparent"><span class="glyphicon glyphicon-envelope"></span></div>
-            <input autofocus="autofocus" type="email" id="email" name="email" placeholder="email" class="form-control" required="required" maxlength="50" />
+            <input autofocus="autofocus" type="email" id="email" name="email" placeholder="<?= $intl->translate("email") ?>" class="form-control" required="required" maxlength="50" />
         </div>
     </div>
     <div class="form-group">
-        <label for="password">Password</label>
+        <label for="password"><?= $intl->translate("Password") ?></label>
         <div class="input-group">
             <div class="input-group-addon transparent"><span class="glyphicon glyphicon-lock"></span></div>
-            <input type="password" id="password" name="password" placeholder="password" class="form-control" required="required" maxlength="20" />
+            <input type="password" id="password" name="password" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
         </div>
     </div>
     <div class="form-group">
-        <label for="password_confirm">Your password again</label>
+        <label for="password_confirm"><?= $intl->translate("Repeat your password") ?></label>
         <div class="input-group">
             <div class="input-group-addon transparent"><span class="glyphicon glyphicon-lock"></span></div>
-            <input type="password" id="password_confirm" name="password_confirm" placeholder="password" class="form-control" required="required" maxlength="20" />
+            <input type="password" id="password_confirm" name="password_confirm" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
         </div>
     </div>
     <div class="form-group">
         <button class="btn btn-default transparent" type="submit">
-            <span class="glyphicon glyphicon-plus"></span> Register now
+            <span class="glyphicon glyphicon-plus"></span> <?= $intl->translate("Register now") ?>
         </button>
         <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
-            class="btn" type="submit"><span class="glyphicon glyphicon-log-in"></span> Log in
+            class="btn" type="submit"><span class="glyphicon glyphicon-log-in"></span> <?= $intl->translate("Log in") ?>
         </a>
     </div>
 </form>

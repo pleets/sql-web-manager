@@ -6,7 +6,6 @@ Use Drone\Mvc\AbstractionModule;
 use Drone\Mvc\AbstractionController;
 use Drone\Dom\Element\Form;
 use Drone\Validator\FormValidator;
-use Exception;
 
 class Module extends AbstractionModule
 {
@@ -77,9 +76,31 @@ class Module extends AbstractionModule
         if (!$validator->isValid())
         {
             $data["messages"] = $validator->getMessages();
-            throw new Exception("Module config errros in user.config!", 300);
+            throw new \Exception("Module config errros in user.config!", 300);
         }
+
+        $this->setTranslator($c);
 	}
+
+    private function setTranslator(AbstractionController $c)
+    {
+        $config = include('config/application.config.php');
+        $locale = $config["environment"]["locale"];
+
+        $i18nTranslator = \Zend\I18n\Translator\Translator::factory(
+            [
+                'locale'  => "$locale",
+                'translation_files' => [
+                    [
+                        "type" => 'phparray',
+                        "filename" => __DIR__ . "/lang/$locale.php"
+                    ]
+                ]
+            ]
+        );
+
+        $c->translator = new \Zend\Mvc\I18n\Translator($i18nTranslator);
+    }
 
 	public function getUserConfig()
 	{

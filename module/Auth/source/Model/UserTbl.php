@@ -13,13 +13,14 @@ class UserTbl extends TableGateway
      */
     public function getNextId()
     {
-        $sql = "SELECT MAX(USER_ID) USER_ID FROM SWM_USERS";
+        $table = $this->getEntity()->getTableName();
+
+        $sql = "SELECT CASE WHEN MAX(USER_ID) IS NULL THEN 1 ELSE MAX(USER_ID) + 1 USER_ID FROM $table";
 
         $this->getDriver()->getDb()->execute($sql);
         $rowset = $this->getDriver()->getDb()->getArrayResult();
         $row = array_shift($rowset);
 
-        # [NOTE] - The sum $row["USER_ID"] + 1 could be truncated on 32-bit systems
-        return is_null($row["USER_ID"]) ? 1 : $row["USER_ID"] + 1;
+        return $row["USER_ID"];
     }
 }

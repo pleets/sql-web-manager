@@ -21,6 +21,9 @@ class Authentication extends DriverAdapter
         $db->setDbuser($user);
         $db->setDbpass($pass);
 
-        return $db->reconnect();
+        if ($db->isConnected())
+            return $db->reconnect()
+        else
+            return $db->connect();
     }
 }
