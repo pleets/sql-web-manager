@@ -22,6 +22,58 @@
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
 		<input type="hidden" name="worksheet" value="<?= $uniqid ?>" />
 	</div>
+
+    <div style="background: #e0e1e2; height: 12px; cursor: n-resize;" id="table-sizing-<?= $uniqid ?>"></div>
+
+    <script type="text/javascript">
+
+        $(function(){
+
+            var sizing_e   = document.getElementById("table-sizing-<?= $uniqid ?>");
+            var sizing_box = $("#sql<?= $uniqid ?>").parent().find(".CodeMirror")[0];
+
+            resize = function(sizer, box)
+            {
+                var pos;
+
+                sizer.addEventListener('mousedown', function(event) {
+                    pos = event.clientY;
+                    document.body.addEventListener('mousemove', _resize);
+                });
+
+                document.body.addEventListener('mouseup', function() {
+                    document.body.removeEventListener('mousemove', _resize);
+                });
+
+                function _resize(event) {
+                    var delta = event.clientY - pos;
+                    console.info('Delta: ' + delta);
+
+                    var old_heigth = box.style.height;
+                    console.info('Old height: ' + old_heigth);
+
+                    // height is defined in .CodeMirror class
+                    if (old_heigth.trim() == '')
+                        old_heigth = $(box).css("height");
+
+                    console.info('Old height 2: ' + old_heigth);
+
+                    old_heigth = parseInt(old_heigth.replace('px', ''));
+
+                    console.info('Old height 3: ' + old_heigth);
+
+                    var new_height = old_heigth + delta;
+
+                    box.style.height = new_height + 'px';
+                    pos = event.clientY;
+                }
+            }
+
+            resize(sizing_e,sizing_box);
+        });
+
+    </script>
+
     <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> <?= $intl->translate('Execute') ?></button>
     <button style="display: none" class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
