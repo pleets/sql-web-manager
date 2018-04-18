@@ -11,9 +11,12 @@ use Drone\Mvc\AbstractionController;
 use Drone\Network\Http;
 use Drone\Validator\FormValidator;
 use Zend\Crypt\Password\Bcrypt;
+use Drone\Error\Errno;
 
 class SingUp extends AbstractionController
 {
+    use \Drone\Error\ErrorTrait;
+
     /**
      * @var UsersEntity
      */

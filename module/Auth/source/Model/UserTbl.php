@@ -15,7 +15,7 @@ class UserTbl extends TableGateway
     {
         $table = $this->getEntity()->getTableName();
 
-        $sql = "SELECT CASE WHEN MAX(USER_ID) IS NULL THEN 1 ELSE MAX(USER_ID) + 1 USER_ID FROM $table";
+        $sql = "SELECT CASE WHEN MAX(USER_ID) IS NULL THEN 1 ELSE MAX(USER_ID) + 1 END USER_ID FROM $table";
 
         $this->getDriver()->getDb()->execute($sql);
         $rowset = $this->getDriver()->getDb()->getArrayResult();

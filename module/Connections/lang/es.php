@@ -21,7 +21,7 @@ return [
     "seconds" => "segundos",
     "Download file" => "Descargar archivo",
     "Error" => "Error",
-    "Successfully connection" => "Conexión exitosa"
+    "Successfully connection" => "Conexión exitosa",
     "Execute" => "Ejecutar",
     "Execute selection" => "Ejecutar selección",
     "to execute the selected statement" => "para ejecutar la sentencia seleccionada"

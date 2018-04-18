@@ -1,12 +1,14 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<div class="alert alert-success">
 		<strong><span class="glyphicon glyphicon-ok"></span></strong>
-		Your email account had verified. You can now log in.
+		<?= $intl->translate("Your email account had verified. You can now log in.") ?>
 	</div>
 
     <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
-        class="btn btn-info" type="submit"><span class="glyphicon glyphicon-log-in"></span> Log in
+        class="btn btn-info" type="submit"><span class="glyphicon glyphicon-log-in"></span> <?= $intl->translate("Log in") ?>
     </a>
 
 <?php elseif ($this->param("process") == "error"): ?>
@@ -18,14 +20,14 @@
 <?php elseif ($this->param("process") == "warning"): ?>
 
 	<div class="alert alert-warning">
-		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $this->param("message") ?>
+		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>
 	</div>
 
 	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>
