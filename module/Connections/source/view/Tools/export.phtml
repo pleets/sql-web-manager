@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php
@@ -5,21 +7,21 @@
 	?>
 
 	<a class="ui teal submit button" target="_blank" href="<?= $this->basePath() ?>/cache/<?= $filename ?>">
-		<i class="download icon"></i> Download file
+		<i class="download icon"></i> <?= $intl->translate('Download file') ?>
 	</a>
 
 	<div style="padding-top: 10px">
-    	<strong><?= $this->param('num_rows') ?></strong> rows!.<br />
-    	<strong><?= $this->param('num_fields') ?></strong> fields.<br />
-    	<strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br />
-    	<strong><?= $this->param('time') ?></strong> seconds!.<br />
+    	<strong><?= $this->param('num_rows') ?></strong> <?= $intl->translate('rows') ?>!.<br />
+    	<strong><?= $this->param('num_fields') ?></strong> <?= $intl->translate('fields') ?>.<br />
+    	<strong><?= $this->param('rows_affected') ?></strong> <?= $intl->translate('rows affected') ?>!.<br />
+    	<strong><?= $this->param('time') ?></strong> <?= $intl->translate('seconds') ?>!.<br />
 	</div>
 
 <?php elseif ($this->param("process") == "warning"): ?>
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -27,7 +29,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>
@@ -41,10 +43,10 @@
 
 	<div class="ui negative message">
 		<div class="header">
-			Error!
+			<?= $intl->translate('Error') ?>!
 		</div>
 		<p>
-			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+			<strong><i class="warning sign icon"></i></strong> <?= $intl->translate($this->param("message")) ?>
 		</p>
 	</div>
 

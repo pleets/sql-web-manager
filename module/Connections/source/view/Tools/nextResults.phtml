@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php
@@ -46,7 +48,7 @@
 						?>
 						<?php if (in_array($column_names_indexed[$i+1], $column_errors)): ?>
 							<td title="Can't bind value" class="context-menu negative no-binded">
-								<span class="ui red label"><i class="warning circle icon"></i>Error</span>
+								<span class="ui red label"><?= $intl->translate('Error') ?></span>
 							</td>
 						<?php else: ?>
 							<td title="<?= htmlentities($row[$i]) ?>" class="context-menu no-binded">
@@ -76,7 +78,7 @@
 
 			btnContinue.attr("data-object", "v = " + JSON.stringify(object));
 
-			$("#log-<?= $worksheet ?>").html("<strong><?= $this->param('num_rows') ?></strong> rows!.<br /><strong><?= $this->param('num_fields') ?></strong> fields.<br /><strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br /><strong><?= $this->param('time') ?></strong> seconds!.<br />");
+			$("#log-<?= $worksheet ?>").html("<strong><?= $this->param('num_rows') ?></strong> <?= $intl->translate('rows') ?>!.<br /><strong><?= $this->param('num_fields') ?></strong> <?= $intl->translate('fields') ?>.<br /><strong><?= $this->param('rows_affected') ?></strong> <?= $intl->translate('rows affected') ?>!.<br /><strong><?= $this->param('time') ?></strong> <?= $intl->translate('seconds') ?>!.<br />");
 
 			/* Binds new event for next statement */
 

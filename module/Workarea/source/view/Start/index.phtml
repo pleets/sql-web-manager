@@ -19,7 +19,7 @@
 			<div class="three wide column">
 				<div class="ui icon buttons">
 					<button class="ui button" data-toggle="modal"
-							data-url="<?= $this->basePath() ?>/public/Workarea/Connections/add" title="Add connection"
+							data-url="<?= $this->basePath() ?>/public/Workarea/Connections/add" title="<?= $intl->translate('Add connection') ?>"
 							data-role="ajax-request" data-type="get" data-response="#add-connection-response"
 							data-callback="v = {
 								before: function() { $('#md-add-connection').modal('show'); },

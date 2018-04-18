@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<?php
@@ -199,23 +201,23 @@
 					$('#app-modal-menu .content').html($('#app-contextual-menu-<?= $uniqid ?>').attr('data-text'));
 					$('#app-modal-menu').modal('show');
 					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
-					View
+					<?= $intl->translate('View') ?>
 				</a>
 				<a class="teal item" onclick="
 					$('#app-export-data-<?= $uniqid ?>').modal('show');
 					$('#app-contextual-menu-<?= $uniqid ?>').css('display', 'none');">
-					Export to XLS
+					<?= $intl->translate('Export') ?>
 				</a>
 			</div>
 		</div>
 
 		<div class="ui modal" id="app-modal-menu">
-			<div class="header">Contents</div>
+			<div class="header"><?= $intl->translate('Contents') ?></div>
 			<div class="content"></div>
 		</div>
 
 		<div class="ui modal" id="app-export-data-<?= $uniqid ?>">
-			<div class="header">Export assistant</div>
+			<div class="header"><?= $intl->translate('Export assistant') ?></div>
 			<div class="content">
 				<form class="ui form" data-role="ajax-request" data-response="#exporting-response-<?= $uniqid ?>"
 					action="<?= $this->basePath() ?>/public/Connections/Tools/export" method="post">
@@ -224,18 +226,18 @@
 					<input type="hidden" name="base64" value="1">
 					<div class="fields">
 						<div class="eight wide field">
-							<label for="type">Type</label>
+							<label for="type"><?= $intl->translate('Type') ?></label>
 							<select class="ui dropdown" name="type" id="type">
 								<option value="excel">Excel</option>
 								<option value="csv">CSV</option>
 							</select>
 						</div>
 						<div class="eight wide field">
-							<label for="filename">Filename</label>
+							<label for="filename"><?= $intl->translate('Filename') ?></label>
 							<input type="text" id="filename" name="filename" placeholder="filename" />
 						</div>
 					</div>
-					<button class="ui submit button"><i class="check icon"></i> Export</button>
+					<button class="ui submit button"><i class="check icon"></i> <?= $intl->translate('Export') ?></button>
 				</form><br />
 				<div id="exporting-response-<?= $uniqid ?>"></div>
 			</div>
@@ -243,22 +245,22 @@
 
     <?php else: ?>
     	<div class="alert alert-warning">
-    		Nothing to print!.
+    		<?= $intl->translate('Nothing to print') ?>!.
     	</div>
    	<?php endif ?>
 
 		<div style="padding-top: 10px" id="log-<?= $worksheet ?>">
-	    	<strong><?= $this->param('num_rows') ?></strong> rows!.<br />
-	    	<strong><?= $this->param('num_fields') ?></strong> fields.<br />
-	    	<strong><?= $this->param('rows_affected') ?></strong> rows affected!.<br />
-	    	<strong><?= $this->param('time') ?></strong> seconds!.<br />
+	    	<strong><?= $this->param('num_rows') ?></strong> <?= $intl->translate('rows') ?>!.<br />
+	    	<strong><?= $this->param('num_fields') ?></strong> <?= $intl->translate('fields') ?>.<br />
+	    	<strong><?= $this->param('rows_affected') ?></strong> <?= $intl->translate('rows affected') ?>!.<br />
+	    	<strong><?= $this->param('time') ?></strong> <?= $intl->translate('seconds') ?>!.<br />
 		</div>
 
 <?php elseif ($this->param("process") == "warning"): ?>
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -266,7 +268,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>
@@ -280,10 +282,10 @@
 
 	<div class="ui negative message">
 		<div class="header">
-			Error!
+			<?= $intl->translate('Error') ?>!
 		</div>
 		<p>
-			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+			<strong><i class="warning sign icon"></i></strong> <?= $intl->translate($this->param("message")) ?>
 		</p>
 	</div>
 

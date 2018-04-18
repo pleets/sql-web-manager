@@ -278,7 +278,7 @@ class Tools extends AbstractionController
                 if (!$validator->isValid())
                 {
                     $data["messages"] = $validator->getMessages();
-                    throw new \Drone\Exception\Exception("Form validation errors!");
+                    throw new \Drone\Exception\Exception("Form validation errors");
                 }
 
                 $id = 0;
@@ -324,9 +324,12 @@ class Tools extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 
@@ -425,12 +428,12 @@ class Tools extends AbstractionController
             ]);
 
             if (!count($connection))
-                throw new \Exception("The Connection does not exists!");
+                throw new \Exception("The Connection does not exists");
 
             $connection = array_shift($connection);
 
             if ($connection->STATE == 'I')
-                throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+                throw new \Drone\Exception\Exception("This connection was deleted", 300);
 
             $details = $this->getUserConnectionDetailsEntity()->select([
                 "USER_CONN_ID" => $id
@@ -466,7 +469,7 @@ class Tools extends AbstractionController
             $sql_text = trim($sql_text);
 
             if (empty($sql_text))
-                throw new \Drone\Exception\Exception("Empty statement!");
+                throw new \Drone\Exception\Exception("Empty statement");
 
             $pos = strpos($sql_text, ';');
 
@@ -726,9 +729,12 @@ class Tools extends AbstractionController
             $file = str_replace('\\', '', __CLASS__);
             $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+            # stores the error code
             if (($errorCode = $storage->store($e)) === false)
             {
                 $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
                 $this->handleErrors($errors, __METHOD__);
             }
 
@@ -796,12 +802,12 @@ class Tools extends AbstractionController
             ]);
 
             if (!count($connection))
-                throw new \Exception("The Connection does not exists!");
+                throw new \Exception("The Connection does not exists");
 
             $connection = array_shift($connection);
 
             if ($connection->STATE == 'I')
-                throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+                throw new \Drone\Exception\Exception("This connection was deleted", 300);
 
             $details = $this->getUserConnectionDetailsEntity()->select([
                 "USER_CONN_ID" => $id
@@ -837,7 +843,7 @@ class Tools extends AbstractionController
             $sql_text = trim($sql_text);
 
             if (empty($sql_text))
-                throw new \Drone\Exception\Exception("Empty statement!");
+                throw new \Drone\Exception\Exception("Empty statement");
 
             $pos = strpos($sql_text, ';');
 
@@ -885,14 +891,17 @@ class Tools extends AbstractionController
                 $file = str_replace('\\', '', __CLASS__);
                 $storage = new \Drone\Exception\Storage("cache/$file.json");
 
+                # stores the error code
                 if (($errorCode = $storage->store($e)) === false)
                 {
                     $errors = $storage->getErrors();
+
+                    # if error storing is not possible, handle it (internal app error)
                     $this->handleErrors($errors, __METHOD__);
                 }
 
                 $data["code"]    = $errorCode;
-                $data["message"] = "Could not connect to database!";
+                $data["message"] = "Could not connect to database";
 
                 # to identify development mode
                 $config = include 'config/application.config.php';

@@ -22,7 +22,7 @@ return [
     "New Worksheet" => "Nouvelle papier de travail",
     "Delete" => "Suprimmer",
     "database" => "base de données",
-    "There aren't connections" => "Il n'y a pas de connexions"
+    "There aren't connections" => "Il n'y a pas de connexions",
     "The Connection does not exists" => "La connexion n'existe pas",
     "This connection was deleted" => "Cette connexion a été supprimée",
 ];

@@ -1,3 +1,5 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php
 	$uniqid = $this->param("id");
 	$conn   = $this->param("conn");
@@ -20,7 +22,7 @@
 		<input type="hidden" name="conn" value="<?= $conn ?>" />
 		<input type="hidden" name="worksheet" value="<?= $uniqid ?>" />
 	</div>
-    <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> Execute</button>
+    <button class="ui button" type="submit"><span class="glyphicon glyphicon-ok"></span> <?= $intl->translate('Execute') ?></button>
     <button style="display: none" class="ui button" type="button" id="execute-statement-<?= $uniqid ?>" data-role="ajax-request" data-response="#sql-res-<?= $uniqid ?>"
     data-url="<?= $this->basePath() . '/public/Connections/Tools/execute' ?>" data-type="post"
     data-object="v = {
@@ -37,7 +39,7 @@
 			// simulates submitting
 			$('#frm-sql-<?= $uniqid ?> button[type=\'submit\']').removeAttr('disabled');
         }
-    }">Execute selection</button>
+    }"><?= $intl->translate('Execute selection') ?></button>
     <button disabled="disabled" class="ui icon button" type="button" id="continue-statement-<?= $uniqid ?>-scrollex"
     	onclick="
     		if (!$('#sql-res-<?= $uniqid ?> .sql-data').hasClass('auto-height'))
@@ -75,7 +77,8 @@
 <div id="sql-res-<?= $uniqid ?>" style="position: relative;">
 	<div class="ui blue message">
 		<p>
-			<strong><i class="info icon"></i></strong> &nbsp;Press <strong>CTRL</strong> + <strong>Enter</strong> to execute selected statement
+			<strong><i class="info icon"></i></strong> &nbsp;Press <strong>CTRL</strong> + <strong>Enter</strong>
+            <?= $intl->translate("to execute the selected statement") ?>
 		</p>
 	</div>
 </div>

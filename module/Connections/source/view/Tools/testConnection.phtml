@@ -1,8 +1,10 @@
+<?php $intl = $this->getController()->translator; ?>
+
 <?php if ($this->param("process") == "success"): ?>
 
 	<div class="ui success message">
 		<p>
-			<strong><i class="checkmark icon"></i></strong> Successfully connection!
+			<strong><i class="checkmark icon"></i></strong> <?= $intl->translate('Successfully connection') ?>!
 		</p>
 	</div>
 
@@ -10,7 +12,7 @@
 
 	<div class="ui yellow message">
 		<p>
-			<strong><i class="warning icon"></i></strong> &nbsp;<?= $this->param("message") ?>
+			<strong><i class="warning icon"></i></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>!
 		</p>
 	</div>
 
@@ -32,10 +34,10 @@
 
 	<div class="ui negative message">
 		<div class="header">
-			Error!
+			<?= $intl->translate('Error') ?>!
 		</div>
 		<p>
-			<strong><i class="warning sign icon"></i></strong> <?= $this->param("message") ?>
+			<strong><i class="warning sign icon"></i></strong> <?= $intl->translate($this->param("message")) ?>
 		</p>
 	</div>
 
