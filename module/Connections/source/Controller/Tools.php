@@ -795,6 +795,63 @@ class Tools extends AbstractionController
                 }
             });
 
+            $components = [
+                "attributes" => [
+                    "conn" => [
+                        "required"  => true,
+                        "type"      => "number"
+                    ],
+                    "sql" => [
+                        "required"  => true,
+                        "type"      => "text"
+                    ],
+                    "type" => [
+                        "required"  => true,
+                        "type"      => "text"
+                    ],
+                    "filename" => [
+                        "required"  => true,
+                        "type"      => "text"
+                    ]
+                ],
+            ];
+
+            $options = [
+                "conn" => [
+                    "label" => "Connection",
+                ],
+                "sql" => [
+                    "label" => "SQL",
+                    "validators" => [
+                        "Alnum"  => ["allowWhiteSpace" => false]
+                    ]
+                ],
+                "type" => [
+                    "label" => "Type",
+                    "validators" => [
+                        "InArray" => ["haystack" => ['excel', 'csv']]
+                    ]
+                ],
+                "filename" => [
+                    "label" => "Filename"
+                ]
+            ];
+
+            $form = new Form($components);
+            $form->fill($post);
+
+            $validator = new FormValidator($form, $options);
+            $validator->validate();
+
+            $data["validator"] = $validator;
+
+            # form validation
+            if (!$validator->isValid())
+            {
+                $data["messages"] = $validator->getMessages();
+                throw new \Drone\Exception\Exception("Form validation errors", 300);
+            }
+
             $id = $post["conn"];
 
             $connection = $this->getUserConnectionEntity()->select([

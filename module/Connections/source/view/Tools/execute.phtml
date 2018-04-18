@@ -222,7 +222,7 @@
 				<form class="ui form" data-role="ajax-request" data-response="#exporting-response-<?= $uniqid ?>"
 					action="<?= $this->basePath() ?>/public/Connections/Tools/export" method="post">
 					<input type="hidden" name="conn" id="export-conn" value="<?= $conn ?>">
-					<input type="hidden" name="sql" id="export-sql" value="<?= $this->param('sql') ?>">
+					<input type="hidden" name="sql" id="export-sql" value="<?= str_replace("=", "", $this->param('sql')) ?>">
 					<input type="hidden" name="base64" value="1">
 					<div class="fields">
 						<div class="eight wide field">

@@ -8,11 +8,11 @@ return [
     "This connection was deleted" => "This connection was deleted",
     "Empty statement" => "Empty statement",
     "Could not connect to database" => "Could not connect to database",
-    "View" => "Ver",
-    "Export" => "Exportar",
-    "Contents" => "Contenido",
-    "Export assistant" => "Asistente de exportación",
-    "Type" => "Tipo",
+    "View" => "View",
+    "Export" => "Export",
+    "Contents" => "Contents",
+    "Export assistant" => "Export assistant",
+    "Type" => "Type",
     "Filename" => "Filename",
     "Nothing to print" => "Nothing to print",
     "rows" => "rows",
@@ -21,7 +21,7 @@ return [
     "seconds" => "seconds",
     "Download file" => "Download file",
     "Error" => "Error",
-    "Successfully connection" => "Successfully connexion"
+    "Successfully connection" => "Successfully connection"
     "Execute" => "Execute",
     "Execute selection" => "Execute selection",
     "to execute the selected statement" => "to execute the selected statement"
