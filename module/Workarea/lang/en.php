@@ -22,5 +22,7 @@ return [
     "New Worksheet" => "New Worksheet",
     "Delete" => "Delete",
     "database" => "database",
-    "There aren't connections" => "There are not connections"
+    "There aren't connections" => "There are not connections",
+    "The Connection does not exists" => "The Connection does not exists",
+    "This connection was deleted" => "This connection was deleted",
 ];

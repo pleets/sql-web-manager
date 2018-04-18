@@ -282,7 +282,7 @@ class Connections extends AbstractionController
             if (!$validator->isValid())
             {
                 $data["messages"] = $validator->getMessages();
-                throw new \Drone\Exception\Exception("Form validation errors!", 300);
+                throw new \Drone\Exception\Exception("Form validation errors", 300);
             }
 
             $connection = $this->getUserConnectionEntity()->select([
@@ -290,12 +290,12 @@ class Connections extends AbstractionController
             ]);
 
             if (!count($connection))
-                throw new \Exception("The Connection does not exists!");
+                throw new \Exception("The Connection does not exists");
 
             $connection = array_shift($connection);
 
             if ($connection->STATE == 'I')
-                throw new \Drone\Exception\Exception("This connection is already deleted!", 300);
+                throw new \Drone\Exception\Exception("This connection was deleted", 300);
 
             $connection->exchangeArray([
                 "STATE" =>  'I'
@@ -589,12 +589,12 @@ class Connections extends AbstractionController
                 ]);
 
                 if (!count($connection))
-                    throw new \Exception("The Connection does not exists!");
+                    throw new \Exception("The Connection does not exists");
 
                 $connection = array_shift($connection);
 
                 if ($connection->STATE == 'I')
-                    throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+                    throw new \Drone\Exception\Exception("This connection was deleted", 300);
 
                 $connection_details = $this->getUserConnectionDetailsEntity()->select([
                     "USER_CONN_ID" => $get["id"]
@@ -676,7 +676,7 @@ class Connections extends AbstractionController
                 if (!$validator->isValid())
                 {
                     $data["messages"] = $validator->getMessages();
-                    throw new \Drone\Exception\Exception("Form validation errors!");
+                    throw new \Drone\Exception\Exception("Form validation errors");
                 }
 
                 $this->getUserConnectionEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
@@ -686,12 +686,12 @@ class Connections extends AbstractionController
                 ]);
 
                 if (!count($userConnection))
-                    throw new \Exception("The Connection does not exists!");
+                    throw new \Exception("The Connection does not exists");
 
                 $userConnection = array_shift($userConnection);
 
                 if ($userConnection->STATE == 'I')
-                    throw new \Drone\Exception\Exception("This connection was deleted!", 300);
+                    throw new \Drone\Exception\Exception("This connection was deleted", 300);
 
                 $userConnection->exchangeArray([
                     "CONN_TYPE_ID"    => $post["type"],
