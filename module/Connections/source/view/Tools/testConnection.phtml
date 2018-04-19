@@ -20,7 +20,7 @@
 		<?php foreach($this->param("messages") as $input => $messages): ?>
 			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
 
-				<h5><strong><?= $lbl ?></strong></h5>
+				<h5><strong><?= $intl->translate($lbl) ?></strong></h5>
 				<ol>
 					<?php foreach($messages as $code => $message): ?>
 						<li><?= $message ?></li>

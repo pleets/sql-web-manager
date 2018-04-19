@@ -13,42 +13,77 @@
 	<form class="ui form" id="frm-update-user-connection" data-role="ajax-request" data-response="#edit-user-connection-response"
 		action="<?= $this->basePath() ?>/public/Workarea/Connections/edit" method="post">
 		<input type="hidden" name="_conn_id" value="<?= $connection->USER_CONN_ID ?>" />
-		<div class="fields">
-			<div class="eight wide field">
-				<label for="conntype"><?= $intl->translate('Connection type') ?></label>
-				<select name="type" id="conntype" onchange="
-						var type = $(this).val();
-						var fieldTypes = $(this).parent().parent().parent().find('.fields.type');
+		<div class="field">
+			<div class="fields">
+				<div class="eight wide field">
+					<label for="conntype"><?= $intl->translate('Connection type') ?></label>
+					<select name="type" id="conntype" onchange="
+							var type = $(this).val();
+							var fieldTypes = $('#frm-update-user-connection .fields.type');
 
-						$.each(fieldTypes, function(key, htmlEl){
+							$.each(fieldTypes, function(key, htmlEl){
 
-							if ($(htmlEl).attr('data-type') == type)
-								$(htmlEl).show();
-							else
-								$(htmlEl).hide().find('input').val('');
-						});
-					">
-					<option value=""><?= $intl->translate('Selection') ?></option>
-					<?php foreach ($types as $type): ?>
-						<option value="<?= $type->CONN_TYPE_ID ?>" <?= ($type->CONN_TYPE_ID == $connection->CONN_TYPE_ID) ? "selected='selected'" : "" ?>><?= $type->CONN_TYPE_NAME ?></option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-			<div class="eight wide field">
-				<label for="aliasname"><?= $intl->translate('Connection name') ?></label>
-				<input type="text" id="aliasname" name="aliasname" placeholder="<?= $intl->translate('alias for your connection') ?>" value="<?= $connection->CONNECTION_NAME ?>" />
+								if ($(htmlEl).attr('data-type') == type)
+									$(htmlEl).show();
+								else
+									$(htmlEl).hide().find('input').val('');
+							});
+						">
+						<option value=""><?= $intl->translate('Selection') ?></option>
+						<?php foreach ($types as $type): ?>
+							<option value="<?= $type->CONN_TYPE_ID ?>" <?= ($type->CONN_TYPE_ID == $connection->CONN_TYPE_ID) ? "selected='selected'" : "" ?>><?= $type->CONN_TYPE_NAME ?></option>
+						<?php endforeach; ?>
+					</select>
+				</div>
+				<div class="eight wide field">
+					<label for="aliasname"><?= $intl->translate('Connection name') ?></label>
+					<input type="text" id="aliasname" name="aliasname" placeholder="<?= $intl->translate('alias for your connection') ?>" value="<?= $connection->CONNECTION_NAME ?>" />
+				</div>
 			</div>
 		</div>
+
+		<?php $cols = 3; $k = $cols; $prev_type = null; ?>
+
+		<?php $fieldSize = ""; ?>
+
+		<?php
+			switch ($cols):
+case 3: $fieldSize = "three"; break;
+case 4: $fieldSize = "four"; break;
+case 5: $fieldSize = "five"; break;
+case 6: $fieldSize = "six"; break;
+			endswitch;
+		?>
+
 		<?php foreach ($fieldTypes as $type => $fields): ?>
-			<div class="fields type" data-type="<?= $type ?>">
+
+		<?php if (!is_null($prev_type) && $prev_type !== $type): ?>
+			<?php $k = $cols; ?>
+		<?php endif; ?>
+
+		<?php $prev_type = $type; ?>
+
+		<div class="field">
+			<div class="<?= $fieldSize ?> fields type" data-type="<?= $type ?>">
 				<?php foreach ($fields as $field): ?>
 					<div class="field">
 						<label for="field<?= $type. $field->CONN_IDENTI_ID ?>"><?= $field->FIELD_NAME ?></label>
 						<input type="text" id="field<?= $type. $field->CONN_IDENTI_ID ?>" name="field[<?= $type ?>][<?= $field->CONN_IDENTI_ID ?>]" placeholder="<?= $field->PLACEHOLDER ?>" value="<?= (array_key_exists( (int) $field->CONN_IDENTI_ID, $details)) ? $details[$field->CONN_IDENTI_ID]->FIELD_VALUE : '' ?>">
 					</div>
+
+					<?php if (++$k % $cols == 0): ?>
+			</div>
+		</div>
+		<div class="field">
+			<div class="<?= $fieldSize ?> fields type" data-type="<?= $type ?>">
+
+					<?php endif; ?>
+
 				<?php endforeach; ?>
 			</div>
+		</div>
 		<?php endforeach; ?>
+
 		<button class="ui submit button"><i class="check icon"></i> <?= $intl->translate('Save') ?></button>
 		<button class="ui button" type="button" data-role="ajax-request" data-type="post"
 			data-url="<?= $this->basePath() ?>/public/Connections/Tools/testConnection"
