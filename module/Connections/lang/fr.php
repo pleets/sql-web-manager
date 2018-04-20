@@ -24,5 +24,6 @@ return [
     "Successfully connection" => "Connexion réussie",
     "Execute" => "Exécuter",
     "Execute selection" => "Exécuter la sélection",
-    "to execute the selected statement" => "pour exécuter l'instruction sélectionnée"
+    "to execute the selected statement" => "pour exécuter l'instruction sélectionnée",
+    "Press" => "Presse"
 ];
