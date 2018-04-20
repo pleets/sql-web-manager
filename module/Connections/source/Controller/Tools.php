@@ -481,11 +481,22 @@ class Tools extends AbstractionController
                     $sql_text = strstr($sql_text, ';', true);
             }
 
+             # clean comments and other characters
+
+            // (/**/)
+            $clean_code = preg_replace('/(\s)*\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\//', '', $sql_text);
+
+            // (--)
+            $clean_code = preg_replace('/(\s)*--.*\n/', "", $clean_code);
+
+            # clean other characters starting senteces
+            $clean_code = preg_replace('/^[\n\t\s]*/', "", $clean_code);
+
             # indicates if SQL is a selection statement
-            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $sql_text));
+            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $clean_code));
 
             # indicates if SQL is a show statement
-            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $sql_text));
+            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $clean_code));
 
             # detect selection
             if ($isSelectStm || $isShowStm)
@@ -912,11 +923,22 @@ class Tools extends AbstractionController
                     $sql_text = strstr($sql_text, ';', true);
             }
 
+             # clean comments and other characters
+
+            // (/**/)
+            $clean_code = preg_replace('/(\s)*\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\//', '', $sql_text);
+
+            // (--)
+            $clean_code = preg_replace('/(\s)*--.*\n/', "", $clean_code);
+
+            # clean other characters starting senteces
+            $clean_code = preg_replace('/^[\n\t\s]*/', "", $clean_code);
+
             # indicates if SQL is a selection statement
-            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $sql_text));
+            $isSelectStm = $data["selectStm"] = (preg_match('/^SELECT/i', $clean_code));
 
             # indicates if SQL is a show statement
-            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $sql_text));
+            $isShowStm   = $data["showStm"]   = (preg_match('/^SHOW/i', $clean_code));
 
             # detect selection
             if (!$isSelectStm && !$isShowStm)
