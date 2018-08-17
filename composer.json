@@ -1,15 +1,15 @@
 {
-    "name": "pleets/dronephp-skeleton",
-    "description": "Skeleton Application for DronePHP Framework",
+    "name": "pleets/sqlwebmanager",
+    "description": "Web application for managing databases",
     "license": "MIT licence",
     "keywords": [
         "framework",
         "PHP"
     ],
-    "homepage": "http://www.dronephp.com",
+    "homepage": "http://www.sqlwebmanager.com",
     "support": {
-        "issues": "https://github.com/Pleets/DronePHP-Skeleton/issues",
-        "source": "https://github.com/Pleets/DronePHP-Skeleton"
+        "issues": "https://github.com/Pleets/SQLWebManager/issues",
+        "source": "https://github.com/Pleets/SQLWebManager"
     },
     "authors": [
         {
