@@ -1,7 +1,7 @@
 {
     "name": "pleets/sqlwebmanager",
     "description": "Web application for managing databases",
-    "license": "MIT licence",
+    "license": "MIT",
     "keywords": [
         "framework",
         "PHP"
