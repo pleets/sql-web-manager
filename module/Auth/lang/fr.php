@@ -20,7 +20,7 @@ return [
     "Your email account had verified. You can now log in." => "Votre compte de messageries a été vérifié. Vous pouvez maintenant vous conneceter.",
     "Welcome" => "Bienvenue",
     "We had sent an email to your inbox" => "Nous avions envoyé un e-mail à votre boîte de réception",
-    "Please check your email and verify your account" => "S'il vous plaît vérifier votre e-mail et vérifier votre compte"
+    "Please check your email and verify your account" => "S'il vous plaît vérifier votre e-mail et vérifier votre compte",
     "Email checking" => "Vérification par courriel",
     "Your account has been registered" => "Votre compte a été enregistré",
     "Please click on the following link to confirm your account" => "Veuillez cliquer sur le lien suivant pour confirmer votre compte",
