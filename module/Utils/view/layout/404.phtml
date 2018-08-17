@@ -1,0 +1,108 @@
+<!doctype html>
+<?php $config = include "config/application.config.php"; ?>
+<html lang="<?= $config['environment']['locale'] ?>">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<link rel="icon" href="<?= $this->basePath() ?>/public/img/utils/lure-module.png" type="image/x-icon" />
+	<link rel="shortcut icon" href="<?= $this->basePath() ?>/public/img/utils/lure-module.png" />
+
+	<!-- responsive metatag -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<?php
+		$config = include("module/Utils/config/user.config.php");
+		$this->setTitle($config["project"]["name"]); $title = $this->getTitle();
+	?>
+
+	<title><?= $this->getTitle() ?></title>
+
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/utils/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/utils/fa-svg-with-js.css" />
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	  <a class="navbar-brand" href="<?= $this->basePath() ?>">
+	  	<img src="<?= $this->basePath() ?>/public/img/utils/lure-module.png" height="30" class="d-inline-block align-top" alt="">
+	  	<?= $title ?>
+	  </a>
+	</nav><br />
+
+	<style>
+		@media (min-width: 991.98px) {
+			.e404 {
+				width: auto !important;
+			}
+
+			.show-on-large {
+				display: block !important;
+			}
+		}
+
+		.warning-icon-left {
+			float: left;
+			font-size: 70px;
+			margin-right: 10px;
+			line-height: 1.0;
+			margin-top: 10px;
+		}
+	</style>
+
+	<div class="container">
+
+		<div class="row">
+			<div class="col-sm">
+				<h1 class="text-danger" style="margin: 0">Page Not Found!</h1>
+				<img src="<?= $this->basePath() ?>/public/img/utils/error-404.png" alt="NOT FOUND" class="e404" style="width: 100%" />
+			</div>
+			<div class="col-sm">
+
+				<img src="<?= $this->basePath() ?>/public/img/utils/man-exclamation.png" alt="exclamation" class="show-on-large" style="display: none" />
+
+				<div class="alert alert-danger" role="alert">
+
+					<div class="text-danger warning-icon-left">
+						<i class="fas fa-exclamation-triangle"></i>
+					</div>
+
+					<h3 class="text-danger">404</h3>
+
+					<p class="text-justify">
+						The webpage you requested does not exists or had a problem, try to access again later.
+						Use the <strong>back</strong>  button to navigate to last page or close this window.
+					</p>
+
+				</div>
+
+			</div>
+		</div>
+
+	</div>
+
+	<script src="<?= $this->basePath(); ?>/public/js/utils/jquery-3.3.1.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/utils/popper-1.12.9.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/utils/bootstrap.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/utils/fontawesome-all.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/utils/fasterjs.js"></script>
+
+	<!-- update page title -->
+	<?php if ($this->getTitle() !== $title): ?>
+		<script type="text/javascript">
+			$("head title").text($("head title").text() + ' - <?= $this->getTitle() ?>');
+		</script>
+	<?php endif; ?>
+
+	<footer class="fluid-container" style="background: rgb(240,240,240)">
+		<div class="container">
+			<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+		</div>
+	</footer>
+
+</body>
+
+</html>

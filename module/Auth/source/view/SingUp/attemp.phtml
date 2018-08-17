@@ -2,22 +2,20 @@
 
 <?php if ($this->param("process") == "success"): ?>
 
-	<div class="alert alert-success">
-		<strong><span class="glyphicon glyphicon-ok"></span></strong>
-		<?= $intl->translate("Welcome") ?> <em><?= $this->param("username") ?></em>.
+	<div class="alert alert-success" role="alert">
+		<i class="fas fa-check"></i> <?= $intl->translate("Welcome") ?> <em><?= $this->param("username") ?></em>.
 	</div>
 
 	<div id="singup-success-message">
 
 		<?php if ($this->param('mail')): ?>
-			<p><span class="glyphicon glyphicon-envelope"></span>
-				<?= $intl->translate("We had sent an email to your inbox") ?>.
+			<p><i class="fas fa-envelope"></i> <?= $intl->translate("We had sent an email to your inbox") ?>.
 			<strong><?= $this->param("email") ?></strong>.
 			<?= $intl->translate("Please check your email and verify your account") ?>!.</p><br />
 		<?php endif; ?>
 
-        <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
-            class="btn btn-default" type="submit"><span class="glyphicon glyphicon-log-in"></span> Log in
+        <a href="<?= $this->basePath() ?>/public/Auth/LogIn" class="btn btn-primary">
+        	<i class="fas fa-sign-in-alt"></i> <?= $intl->translate('Log in') ?>
         </a>
 	</div>
 
@@ -30,8 +28,8 @@
 
 <?php elseif ($this->param("process") == "warning"): ?>
 
-	<div class="alert alert-warning">
-		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>
+	<div class="alert alert-warning" role="alert">
+		<i class="fas fa-exclamation"></i> &nbsp;<?= $intl->translate($this->param("message")) ?>
 	</div>
 
 	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>

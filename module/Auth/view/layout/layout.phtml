@@ -1,55 +1,70 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<?php $config = include "config/application.config.php"; ?>
+<html lang="<?= $config['environment']['locale'] ?>">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<link rel="icon" href="<?= $this->basePath() ?>/public/img/favicon.png" type="image/x-icon" />
-	<link rel="shortcut icon" href="<?= $this->basePath() ?>/public/img/favicon.png" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<link rel="icon" href="<?= $this->basePath() ?>/public/img/auth/lure-module.png" type="image/x-icon" />
+	<link rel="shortcut icon" href="<?= $this->basePath() ?>/public/auth/lure-module.png" />
+
+	<!-- responsive metatag -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<?php
 		$config = include("module/Auth/config/user.config.php");
-		$this->setTitle($config["project"]["name"]); $_title = $this->getTitle();
+		$this->setTitle($config["project"]["name"]); $title = $this->getTitle();
 	?>
 
 	<title><?= $this->getTitle() ?></title>
 
-	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/bootstrap.min.css" />
-
-	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/jquery-3.1.0.min.js"></script>
-	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="<?= $this->basePath(); ?>/public/js/app.js"></script>
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/auth/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/auth/fa-svg-with-js.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/auth/css-loader.css" />
 
 </head>
 
-	<body>
+<body>
 
-		<nav class="navbar navbar-default">
-		  	<div class="container-fluid">
-			    <!-- Brand and toggle get grouped for better mobile display -->
-			    <div class="navbar-header">
-			      	<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-				        <span class="sr-only">Toggle navigation</span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-				        <span class="icon-bar"></span>
-			      	</button>
-			      	<a class="navbar-brand" href="<?= $this->basePath() ?>"><?= $config["project"]["name"] ?></a>
-			    </div>
-		  	</div><!-- /.container-fluid -->
-		</nav>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	  <a class="navbar-brand" href="<?= $this->basePath() ?>">
+	  	<img src="<?= $this->basePath() ?>/public/img/auth/lure-module.png" height="30" class="d-inline-block align-top" alt="">
+	  	<?= $title ?>
+	  </a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	  </button>
 
-		<div class="container">
-			<?= $this->content() ?>
+	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+	    <ul class="navbar-nav mr-auto">
+	      <li class="nav-item active">
+	        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+	      </li>
+	      <li class="nav-item">
+	        <a class="nav-link" href="#">About</a>
+	      </li>
+	    </ul>
+	  </div>
+	</nav><br />
 
-			<!-- update page title -->
-			<?php if ($this->getTitle() !== $_title): ?>
-				<script type="text/javascript">
-					$("head title").text($("head title").text() + ' - <?= $this->getTitle() ?>');
-				</script>
-			<?php endif; ?>
-		</div>
+	<div class="container">
+		<?= $this->content() ?>
+	</div>
 
-	</body>
+	<script src="<?= $this->basePath(); ?>/public/js/auth/jquery-3.3.1.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/auth/popper-1.12.9.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/auth/bootstrap.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/auth/fontawesome-all.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/auth/fasterjs.js"></script>
+
+	<!-- update page title -->
+	<?php if ($this->getTitle() !== $title): ?>
+		<script type="text/javascript">
+			$("head title").text($("head title").text() + ' - <?= $this->getTitle() ?>');
+		</script>
+	<?php endif; ?>
+
+</body>
 
 </html>

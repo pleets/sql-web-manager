@@ -1,0 +1,65 @@
+<!doctype html>
+<?php $config = include "config/application.config.php"; ?>
+<html lang="<?= $config['environment']['locale'] ?>">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<link rel="icon" href="<?= $this->basePath() ?>/public/img/auth/lure-module.png" type="image/x-icon" />
+	<link rel="shortcut icon" href="<?= $this->basePath() ?>/public/img/auth/lure-module.png" />
+
+	<!-- responsive metatag -->
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<?php
+		$config = include("module/Auth/config/user.config.php");
+		$this->setTitle($config["project"]["name"]); $title = $this->getTitle();
+	?>
+
+	<title><?= $this->getTitle() ?></title>
+
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/auth/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="<?= $this->basePath(); ?>/public/css/auth/fa-svg-with-js.css" />
+
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+	  <a class="navbar-brand" href="<?= $this->basePath() ?>">
+	  	<img src="<?= $this->basePath() ?>/public/img/auth/lure-module.png" height="30" width="30" class="d-inline-block align-top" alt="">
+	  	<?= $title ?>
+	  </a>
+	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+	    <span class="navbar-toggler-icon"></span>
+	  </button>
+
+	</nav><br />
+
+	<div class="container">
+		<?php $this->content() ?>
+	</div>
+
+	<script src="<?= $this->basePath(); ?>/public/js/auth/jquery-3.3.1.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/auth/popper-1.12.9.min.js"></script>
+	<script src="<?= $this->basePath(); ?>/public/js/auth/bootstrap.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/auth/fontawesome-all.min.js"></script>
+
+	<script src="<?= $this->basePath(); ?>/public/js/auth/fasterjs.js"></script>
+
+	<!-- update page title -->
+	<?php if ($this->getTitle() !== $title): ?>
+		<script type="text/javascript">
+			$("head title").text($("head title").text() + ' - <?= $this->getTitle() ?>');
+		</script>
+	<?php endif; ?>
+
+	<footer class="fluid-container" style="background: rgb(240,240,240)">
+		<div class="container">
+			<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+		</div>
+	</footer>
+
+</body>
+
+</html>

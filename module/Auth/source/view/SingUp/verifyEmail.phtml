@@ -7,8 +7,8 @@
 		<?= $intl->translate("Your email account had verified. You can now log in.") ?>
 	</div>
 
-    <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
-        class="btn btn-info" type="submit"><span class="glyphicon glyphicon-log-in"></span> <?= $intl->translate("Log in") ?>
+    <a href="<?= $this->basePath() ?>/public/Auth/LogIn" class="btn btn-primary">
+    	<i class="fas fa-sign-in-alt"></i> <?= $intl->translate('Log in') ?>
     </a>
 
 <?php elseif ($this->param("process") == "error"): ?>

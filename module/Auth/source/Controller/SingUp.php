@@ -9,9 +9,9 @@ use Drone\Debug\Catcher;
 use Drone\Dom\Element\Form;
 use Drone\Mvc\AbstractionController;
 use Drone\Network\Http;
+use Drone\Pear\Mail;
 use Drone\Validator\FormValidator;
 use Zend\Crypt\Password\Bcrypt;
-use Drone\Error\Errno;
 
 class SingUp extends AbstractionController
 {
@@ -20,19 +20,19 @@ class SingUp extends AbstractionController
     /**
      * @var UsersEntity
      */
-    private $usersEntity;
+    private $userAdapter;
 
     /**
      * @return UsersEntity
      */
-    private function getUsersEntity()
+    private function getUserAdapter()
     {
-        if (!is_null($this->usersEntity))
-            return $this->usersEntity;
+        if (!is_null($this->userAdapter))
+            return $this->userAdapter;
 
-        $this->usersEntity = new EntityAdapter(new UserTbl(new User()));
+        $this->userAdapter = new EntityAdapter(new UserTbl(new User()));
 
-        return $this->usersEntity;
+        return $this->userAdapter;
     }
 
     /**
@@ -46,29 +46,35 @@ class SingUp extends AbstractionController
         $method = $config["authentication"]["method"];
         $key    = $config["authentication"]["key"];
 
+        $global_config = include 'config/global.config.php';
+
+        /** URL TO REDIRECT:
+         *
+         * By default if there isn't a session active, it will be redirected to the module in the user config file ($config["redirect"]).
+         * If a last URI requested exists, it will be redirecto to it.
+         *
+         * Other modules must have the following line of code inside init method to ensure last uri redirection.
+         * $_SESSION["last_uri_" . $global_config["project"]["id"]] = $_SERVER["REQUEST_URI"];
+         * It should be an unique session id for the app to prevent bad redirections with other projects.
+         */
+        if (array_key_exists("last_uri_" . $global_config["project"]["id"], $_SESSION) || !empty($_SESSION["last_uri_" . $global_config["project"]["id"]]))
+            $location = $_SESSION["last_uri_" . $global_config["project"]["id"]];
+        else
+            $location = $this->getBasePath() . "/public/" . $config["redirect"];
+
         switch ($method)
         {
             case '_COOKIE':
 
                 if (array_key_exists($key, $_COOKIE) || !empty($_COOKIE[$key]))
-                {
-                    if (array_key_exists("CR_VAR_URL_REJECTED", $_SESSION) || !empty($_SESSION["CR_VAR_URL_REJECTED"]))
-                        header("location: " . $_SESSION["CR_VAR_URL_REJECTED"]);
-                    else
-                        header("location: " . $this->basePath . "/public/" . $config["redirect"]);
-                }
+                    header("location: " . $location);
 
                 break;
 
             case '_SESSION':
 
                 if (array_key_exists($key, $_SESSION) || !empty($_SESSION[$key]))
-                {
-                    if (array_key_exists("CR_VAR_URL_REJECTED", $_SESSION) || !empty($_SESSION["CR_VAR_URL_REJECTED"]))
-                        header("location: " . $_SESSION["CR_VAR_URL_REJECTED"]);
-                    else
-                        header("location: " . $this->basePath . "/public/" . $config["redirect"]);
-                }
+                    header("location: " . $location);
 
                 break;
         }
@@ -201,11 +207,21 @@ class SingUp extends AbstractionController
                 throw new \Drone\Exception\Exception("Form validation errors!", 300);
             }
 
-            $row = $this->getUsersEntity()->select([
-                "USERNAME" => $post["username"]
+            $config = include 'module/Auth/config/user.config.php';
+            $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
+            $password_str = $config["authentication"]["gateway"]["credentials"]["password"];
+            $state_field  = $config["authentication"]["gateway"]["table_info"]["columns"]["state_field"];
+            $id_field     = $config["authentication"]["gateway"]["table_info"]["columns"]["id_field"];
+            $email_field  = $config["authentication"]["gateway"]["table_info"]["columns"]["email_field"];
+
+            $pending_state = $config["authentication"]["gateway"]["table_info"]["column_values"]["state_field"]["pending_email"];
+            $active_state  = $config["authentication"]["gateway"]["table_info"]["column_values"]["state_field"]["user_active"];
+
+            $rowset = $this->getUserAdapter()->select([
+                $username_str => $post["username"]
             ]);
 
-            if (count($row))
+            if (count($rowset))
                 throw new \Drone\Exception\Exception("This username already exists!", 300);
 
             $bcrypt = new Bcrypt();
@@ -214,48 +230,49 @@ class SingUp extends AbstractionController
             $t = base64_encode(time() . uniqid());
             $token = substr($t, 0, 30);
 
-            $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->beginTransaction();
+            $this->getUserAdapter()->getTableGateway()->getDriver()->getDb()->beginTransaction();
 
-            $config = include 'module/Auth/config/user.config.php';
+            $data["mail"] = ($config["mail"]["checking"]["enabled"] == "Y") ? true : false;
 
             $user = new User();
 
             $user->exchangeArray([
-                "USER_ID"       => $this->getUsersEntity()->getTableGateway()->getNextId(),
-                "USER_STATE_ID" => ($config["mail"]["checking"]["enabled"]) ? 1 : 2,
-                "USERNAME"      => $post["username"],
-                "EMAIL"         => $post["email"],
-                "TOKEN"         => $token,
-                "USER_PASSWORD" => $securePass
+                $id_field     => $this->getUserAdapter()->getTableGateway()->getNextId(),
+                $state_field  => $data["mail"] ? $pending_state : $active_state,
+                $username_str => $post["username"],
+                $email_field  => $post["email"],
+                "TOKEN"       => $token,
+                $password_str => $securePass
             ]);
 
-            $this->getUsersEntity()->insert($user);
+            $this->getUserAdapter()->insert($user);
 
-            $link = $_SERVER["HTTP_HOST"] . $this->basePath . "/public/Auth/SingUp/verifyEmail/user/" . $post["username"] . "/token/" . $token;
+            $link = $_SERVER["REQUEST_SCHEME"] .'://'. $_SERVER["HTTP_HOST"] . $this->getBasePath() . "/public/Auth/SingUp/verifyEmail/user/" . $post["username"] . "/token/" . $token;
 
-            $data["mail"] = ($config["mail"]["checking"]["enabled"]) ? true : false;
-
-            if ($config["mail"]["checking"]["enabled"])
+            if ($data["mail"])
             {
                 $from = $config["mail"]["checking"]["from"];
+                $host = $config["mail"]["host"];
 
-                $headers  = 'MIME-Version: 1.0' . "\r\n";
-                $headers .= 'Content-type: text/html; charset=iso-8859-1' . "\r\n";
-                $headers .= 'From: '. $from ."\r\n". 'X-Mailer: PHP/' . phpversion();
+                $mail = new Mail();
+                $mail->setHost($host);
+                $subject = $this->translator->translate("Email checking") . "!";
+                $body = $this->translator->translate("Your account has been registered") . "!." .
+                        $this->translator->translate("Please click on the following link to confirm your account") .
+                            "<br /><br /><a href='$link'>$link</a>.";
 
-                if (!@mail(
-                    $post["email"], "Email checking!",
-                    "Your account has been registered!. Please click on the following link to confirm your account<br /><br />
-                    <a href='$link'>$token</a>.",
-                    $headers
-                ))
+                $success = $mail->send($from, $post["email"], $subject, $body);
+
+                if (!$success)
                 {
-                    $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->rollback();
-                    throw new \Exception("Error trying to send email checking. Try it again later!.");
+                    $errors = array_values($mail->getErrors());
+                    $err = array_shift($errors);
+                    $this->getUserAdapter()->getTableGateway()->getDriver()->getDb()->rollback();
+                    throw new \Exception($err);
                 }
             }
 
-            $this->getUsersEntity()->getTableGateway()->getDriver()->getDb()->endTransaction();
+            $this->getUserAdapter()->getTableGateway()->getDriver()->getDb()->endTransaction();
 
             $data["username"] = $post["username"];
             $data["email"] = $post["email"];
@@ -337,13 +354,20 @@ class SingUp extends AbstractionController
                 }
             });
 
+            $config = include 'module/Auth/config/user.config.php';
+            $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
+            $state_field  = $config["authentication"]["gateway"]["table_info"]["columns"]["state_field"];
+
+            $pending_state = $config["authentication"]["gateway"]["table_info"]["column_values"]["state_field"]["pending_email"];
+            $active_state  = $config["authentication"]["gateway"]["table_info"]["column_values"]["state_field"]["user_active"];
+
             # catch arguments
             $token = $_GET["token"];
             $user  = $_GET["user"];
 
-            $row = $this->getUsersEntity()->select([
-                "USERNAME" => $user,
-                "TOKEN"    => $token
+            $row = $this->getUserAdapter()->select([
+                $username_str => $user,
+                "TOKEN"       => $token
             ]);
 
             if (!count($row))
@@ -351,13 +375,15 @@ class SingUp extends AbstractionController
 
             $user = array_shift($row);
 
-            if ($user->USER_STATE_ID <> 1)
+            if ($user->{$state_field} <> $pending_state)
                 throw new \Drone\Exception\Exception("This email address had verified before!.", 300);
 
-            $user->USER_STATE_ID = 2;
+            $user->exchangeArray([
+                $state_field => $active_state
+            ]);
 
-            $this->getUsersEntity()->update($user, [
-                "USER_ID" => $user->USER_ID
+            $this->getUserAdapter()->update($user, [
+                $username_str => $user->{$username_str}
             ]);
 
             # SUCCESS-MESSAGE

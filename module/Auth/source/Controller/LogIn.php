@@ -3,6 +3,9 @@
 namespace Auth\Controller;
 
 use Auth\Model\User;
+use Auth\Model\UserRole;
+use Auth\Model\DbUserRole;
+use Auth\Model\Authentication;
 use Drone\Db\TableGateway\EntityAdapter;
 use Drone\Db\TableGateway\TableGateway;
 use Drone\Dom\Element\Form;
@@ -19,19 +22,55 @@ class LogIn extends AbstractionController
     /**
      * @var EntityAdapter
      */
-    private $usersAdapter;
+    private $userAdapter;
+
+    /**
+     * @var EntityAdapter
+     */
+    private $userRoleAdapter;
+
+    /**
+     * @var EntityAdapter
+     */
+    private $dbUserRoleAdapter;
 
     /**
      * @return EntityAdapter
      */
-    private function getUsersAdapter()
+    private function getUserAdapter()
     {
-        if (!is_null($this->usersAdapter))
-            return $this->usersAdapter;
+        if (!is_null($this->userAdapter))
+            return $this->userAdapter;
 
-        $this->usersAdapter = new EntityAdapter(new TableGateway(new User()));
+        $this->userAdapter = new EntityAdapter(new TableGateway(new User()));
 
-        return $this->usersAdapter;
+        return $this->userAdapter;
+    }
+
+    /**
+     * @return EntityAdapter
+     */
+    private function getUserRoleAdapter()
+    {
+        if (!is_null($this->userRoleAdapter))
+            return $this->userRoleAdapter;
+
+        $this->userRoleAdapter = new EntityAdapter(new TableGateway(new UserRole()));
+
+        return $this->userRoleAdapter;
+    }
+
+    /**
+     * @return EntityAdapter
+     */
+    private function getDbUserRoleAdapter()
+    {
+        if (!is_null($this->dbUserRoleAdapter))
+            return $this->dbUserRoleAdapter;
+
+        $this->dbUserRoleAdapter = new EntityAdapter(new TableGateway(new DbUserRole()));
+
+        return $this->dbUserRoleAdapter;
     }
 
     /**
@@ -45,29 +84,35 @@ class LogIn extends AbstractionController
         $method = $config["authentication"]["method"];
         $key    = $config["authentication"]["key"];
 
+        $global_config = include 'config/global.config.php';
+
+        /** URL TO REDIRECT:
+         *
+         * By default if there isn't a session active, it will be redirected to the module in the user config file ($config["redirect"]).
+         * If a last URI requested exists, it will be redirecto to it.
+         *
+         * Other modules must have the following line of code inside init method to ensure last uri redirection.
+         * $_SESSION["last_uri_" . $global_config["project"]["id"]] = $_SERVER["REQUEST_URI"];
+         * It should be an unique session id for the app to prevent bad redirections with other projects.
+         */
+        if (array_key_exists("last_uri_" . $global_config["project"]["id"], $_SESSION) || !empty($_SESSION["last_uri_" . $global_config["project"]["id"]]))
+            $location = $_SESSION["last_uri_" . $global_config["project"]["id"]];
+        else
+            $location = $this->getBasePath() . "/public/" . $config["redirect"];
+
         switch ($method)
         {
             case '_COOKIE':
 
                 if (array_key_exists($key, $_COOKIE) || !empty($_COOKIE[$key]))
-                {
-                    if (array_key_exists("CR_VAR_URL_REJECTED", $_SESSION) || !empty($_SESSION["CR_VAR_URL_REJECTED"]))
-                        header("location: " . $_SESSION["CR_VAR_URL_REJECTED"]);
-                    else
-                        header("location: " . $this->basePath . "/public/" . $config["redirect"]);
-                }
+                    header("location: " . $location);
 
                 break;
 
             case '_SESSION':
 
                 if (array_key_exists($key, $_SESSION) || !empty($_SESSION[$key]))
-                {
-                    if (array_key_exists("CR_VAR_URL_REJECTED", $_SESSION) || !empty($_SESSION["CR_VAR_URL_REJECTED"]))
-                        header("location: " . $_SESSION["CR_VAR_URL_REJECTED"]);
-                    else
-                        header("location: " . $this->basePath . "/public/" . $config["redirect"]);
-                }
+                    header("location: " . $location);
 
                 break;
         }
@@ -180,28 +225,79 @@ class LogIn extends AbstractionController
 
             $config = include 'module/Auth/config/user.config.php';
 
-            $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
-            $password_str = $config["authentication"]["gateway"]["credentials"]["password"];
+            $authorization = $config["authorization"];
+            $username_str  = $config["authentication"]["gateway"]["credentials"]["username"];
+            $password_str  = $config["authentication"]["gateway"]["credentials"]["password"];
 
-            $row = $this->getUsersAdapter()->select([
-                "$username_str" => $post["username"]
-            ]);
+            switch ($config["authentication"]["type"])
+            {
+                case 'db_user':
 
-            if (!count($row))
-                throw new \Drone\Exception\Exception("Username or password are incorrect");
+                    try
+                    {
+                        if ($authorization["enabled"])
+                        {
+                            $rowset = $this->getDbUserAdapter()->select([
+                                $username_str => strtoupper($post["username"])
+                            ]);
 
-            $user = array_shift($row);
+                            if (!count($rowset))
+                                throw new \Drone\Exception\Exception("Your user is not authorized to use this application!");
+                        }
 
-            $securePass = $user->{$password_str};
-            $password = $post["password"];
+                        $auth = new Authentication("default", false);
+                        $result = $auth->authenticate($post["username"], $post["password"]);
+                    }
+                    catch (\Drone\Db\Driver\Exception\ConnectionException $e)
+                    {
+                        throw new \Drone\Exception\Exception("Wrong user or password");
+                    }
 
-            if ($user->USER_STATE_ID == 1)
-                throw new \Drone\Exception\Exception("User pending of email checking!");
+                    break;
 
-            $bcrypt = new Bcrypt();
+                case 'db_table':
 
-            if (!$bcrypt->verify($password, $securePass))
-                throw new \Drone\Exception\Exception("Username or password are incorrect");
+                    $rowset = $this->getUserAdapter()->select([
+                        $username_str => $post["username"]
+                    ]);
+
+                    if (!count($rowset))
+                        throw new \Drone\Exception\Exception("Username or password are incorrect");
+
+                    $user = array_shift($rowset);
+
+                    if ($authorization["enabled"] == "Y")
+                    {
+                        $id_field = $config["authentication"]["gateway"]["table_info"]["columns"]["id_field"];
+
+                        $rowset = $this->getUserRoleAdapter()->select([
+                            $id_field => $user->{$id_field}
+                        ]);
+
+                        if (!count($rowset))
+                            throw new \Drone\Exception\Exception("Your user is not authorized to use this application!");
+                    }
+
+                    $state_field = $config["authentication"]["gateway"]["table_info"]["columns"]["state_field"];
+                    $state_pending_value = $config["authentication"]["gateway"]["table_info"]["column_values"]["state_field"]["pending_email"];
+
+                    if ($user->{$state_field} == $state_pending_value)
+                        throw new \Drone\Exception\Exception("User pending of email checking");
+
+                    $securePass = $user->{$password_str};
+                    $password = $post["password"];
+
+                    $bcrypt = new Bcrypt();
+
+                    if (!$bcrypt->verify($password, $securePass))
+                        throw new \Drone\Exception\Exception("Username or password are incorrect");
+
+                    break;
+
+                default:
+                    # code...
+                    break;
+            }
 
             $key    = $config["authentication"]["key"];
             $method = $config["authentication"]["method"];
@@ -209,11 +305,11 @@ class LogIn extends AbstractionController
             switch ($method)
             {
                 case '_COOKIE':
-                    setcookie($key, $user->USERNAME, time() + 2000000000, '/');
+                    setcookie($key, $post["username"], time() + 2000000000, '/');
                     break;
 
                 case '_SESSION':
-                    $_SESSION[$key] = $user->USERNAME;
+                    $_SESSION[$key] = $post["username"];
                     break;
             }
 

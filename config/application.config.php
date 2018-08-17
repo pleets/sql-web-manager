@@ -3,7 +3,7 @@
 return [
     // Each new module must be declared as follow
     'modules' => [
-        'Auth',
+        'Auth', 'Utils',
         'Catcher',
         'Workarea',
         'Connections',

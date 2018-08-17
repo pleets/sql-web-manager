@@ -2,14 +2,12 @@
 
 <?php if ($this->param("process") == "success"): ?>
 
-	<div class="alert alert-success">
-		<strong><span class="glyphicon glyphicon-ok"></span></strong>
-		<?= $intl->translate("Successfully log in") ?>
+	<div class="alert alert-success" role="alert">
+		<i class="fas fa-check"></i> <?= $intl->translate("Successfully log in") ?>
 	</div>
 
 	<div id="login-success-message">
-		<p><span class="glyphicon glyphicon-link"></span>
-		<?= $intl->translate("Please wait a few seconds while we redirect you") ?>...</p>
+		<p><span class="glyphicon glyphicon-link"></span> <?= $intl->translate("Please wait a few seconds while we redirect you") ?>...</p>
 	</div>
 
 	<script type="text/javascript">
@@ -27,8 +25,8 @@
 
 <?php elseif ($this->param("process") == "warning"): ?>
 
-	<div class="alert alert-warning">
-		<strong><span class="glyphicon glyphicon-alert" aria-hidden="true"></span></strong> &nbsp;<?= $intl->translate($this->param("message")) ?>
+	<div class="alert alert-warning" role="alert">
+		<i class="fas fa-exclamation"></i> &nbsp;<?= $intl->translate($this->param("message")) ?>
 	</div>
 
 	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>

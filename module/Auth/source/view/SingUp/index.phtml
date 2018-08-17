@@ -6,43 +6,55 @@
 <h3> <?= $intl->translate('Register form') ?> </h3>
 
 <form id="frm-singup" method="post" data-response="#singup-response" data-role='ajax-request'
-    action="<?= $this->basePath() . '/public/Auth/SingUp/attemp' ?>">
+    action="<?= $this->basePath() . '/public/Auth/SingUp/attemp' ?>" autocomplete="off">
     <div class="form-group">
         <label for="username"><?= $intl->translate("Username") ?></label>
         <div class="input-group">
-            <div class="input-group-addon transparent"><span class="glyphicon glyphicon-user"></span></div>
+            <div class="input-group-prepend">
+                <div class="input-group-text"><i class="far fa-user"></i></div>
+            </div>
             <input autofocus="autofocus" type="text" id="username" name="username" placeholder="<?= $intl->translate("username") ?>" class="form-control" required="required" maxlength="20" />
         </div>
     </div>
     <div class="form-group">
         <label for="email"><?= $intl->translate("Email") ?></label>
         <div class="input-group">
-            <div class="input-group-addon transparent"><span class="glyphicon glyphicon-envelope"></span></div>
+            <div class="input-group-prepend">
+                <div class="input-group-text"><i class="fas fa-envelope"></i></div>
+            </div>
             <input autofocus="autofocus" type="email" id="email" name="email" placeholder="<?= $intl->translate("email") ?>" class="form-control" required="required" maxlength="50" />
         </div>
     </div>
-    <div class="form-group">
-        <label for="password"><?= $intl->translate("Password") ?></label>
-        <div class="input-group">
-            <div class="input-group-addon transparent"><span class="glyphicon glyphicon-lock"></span></div>
-            <input type="password" id="password" name="password" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="password"><?= $intl->translate("Password") ?></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                    </div>
+                    <input type="password" id="password" name="password" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <label for="password_confirm"><?= $intl->translate("Repeat your password") ?></label>
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                    </div>
+                    <input type="password" id="password_confirm" name="password_confirm" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
+                </div>
+            </div>
         </div>
     </div>
-    <div class="form-group">
-        <label for="password_confirm"><?= $intl->translate("Repeat your password") ?></label>
-        <div class="input-group">
-            <div class="input-group-addon transparent"><span class="glyphicon glyphicon-lock"></span></div>
-            <input type="password" id="password_confirm" name="password_confirm" placeholder="<?= $intl->translate("password") ?>" class="form-control" required="required" maxlength="20" />
-        </div>
-    </div>
-    <div class="form-group">
-        <button class="btn btn-default transparent" type="submit">
-            <span class="glyphicon glyphicon-plus"></span> <?= $intl->translate("Register now") ?>
-        </button>
-        <a href="<?= $this->basePath() ?>/public/Auth/LogIn"
-            class="btn" type="submit"><span class="glyphicon glyphicon-log-in"></span> <?= $intl->translate("Log in") ?>
-        </a>
-    </div>
-</form>
+    <button class="btn btn-primary" type="submit">
+        <i class="fas fa-check"></i> <?= $intl->translate("Register now") ?>
+    </button>
+    <a href="<?= $this->basePath() ?>/public/Auth/LogIn" role="button" class="btn btn-default">
+        <i class="fas fa-sign-in-alt"></i> <?= $intl->translate("Log in") ?>
+    </a>
+</form><br />
 
 <div id="singup-response"></div>

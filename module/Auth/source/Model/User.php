@@ -7,36 +7,6 @@ use Drone\Db\Entity;
 class User extends Entity
 {
 	/**
-	 * @var integer
-	 */
-    public $USER_ID;
-
-	/**
-	 * @var string
-	 */
-    public $USERNAME;
-
-	/**
-	 * @var integer
-	 */
-    public $USER_STATE_ID;
-
-	/**
-	 * @var integer
-	 */
-    public $ROLE_ID;
-
-	/**
-	 * @var string
-	 */
-    public $USER_PASSWORD;
-
-	/**
-	 * @var string
-	 */
-    public $EMAIL;
-
-	/**
 	 * @var string
 	 */
     public $TOKEN;
@@ -48,11 +18,24 @@ class User extends Entity
 
     public function __construct($data = [])
     {
+		$config = include 'module/Auth/config/user.config.php';
+
+        $username_str = $config["authentication"]["gateway"]["credentials"]["username"];
+        $password_str = $config["authentication"]["gateway"]["credentials"]["password"];
+        $state_field  = $config["authentication"]["gateway"]["table_info"]["columns"]["state_field"];
+        $email_field  = $config["authentication"]["gateway"]["table_info"]["columns"]["email_field"];
+        $id_field     = $config["authentication"]["gateway"]["table_info"]["columns"]["id_field"];
+
+        foreach ([$id_field, $username_str, $password_str, $state_field, $email_field] as $field)
+        {
+            $this->{$field} = null;
+        }
+
     	parent::__construct($data);
 
-		$config = include 'module/Auth/config/user.config.php';
 		$table  = $config["authentication"]["gateway"]["entity"];
+		$prefix = $config["database"]["prefix"];
 
-        $this->setTableName($table);
+        $this->setTableName($prefix . "_" . $table);
     }
 }

@@ -2,19 +2,24 @@
 
 namespace Auth;
 
+use Drone\Dom\Element\Form;
 Use Drone\Mvc\AbstractionModule;
 use Drone\Mvc\AbstractionController;
-use Drone\Dom\Element\Form;
+use Drone\Mvc\Layout;
 use Drone\Validator\FormValidator;
+use Drone\Util\ArrayDimension;
 
 class Module extends AbstractionModule
 {
-	public function init(AbstractionController $c)
-	{
-		$config = $this->getUserConfig();
-		$_config = $this->toFormConfig($config);
+    public function init(AbstractionController $c)
+    {
+        $config = $this->getUserConfig();
 
-		# config constraints
+        $_config = ArrayDimension::toUnidimensional($config, "_");
+
+        $this->setTranslator($c);
+
+        # config constraints
 
         $components = [
             "attributes" => [
@@ -24,8 +29,12 @@ class Module extends AbstractionModule
                     "minlength" => 2,
                     "maxlength" => 60
                 ],
+                "mail_checking_enabled" => [
+                    "required" => true,
+                    "type"     => "text"
+                ],
                 "mail_checking_from" => [
-                    "required"  => true,
+                    "required"  => false,
                     "type"      => "email"
                 ],
                 "authentication_method" => [
@@ -34,6 +43,31 @@ class Module extends AbstractionModule
                 ],
                 "authentication_key" => [
                     "required"  => true,
+                    "type"      => "text",
+                    "minlength" => 1
+                ],
+                "authentication_type" => [
+                    "required"  => true,
+                    "type"      => "text"
+                ],
+                "authentication_gateway_entity" => [
+                    "required"  => false,
+                    "type"      => "text"
+                ],
+                "authentication_gateway_credentials_username" => [
+                    "required"  => false,
+                    "type"      => "text"
+                ],
+                "authentication_gateway_credentials_password" => [
+                    "required"  => false,
+                    "type"      => "text"
+                ],
+                "authorization_enabled" => [
+                    "required" => true,
+                    "type"     => "text"
+                ],
+                "database_prefix" => [
+                    "required"  => false,
                     "type"      => "text"
                 ],
                 "redirect" => [
@@ -47,6 +81,12 @@ class Module extends AbstractionModule
             "project" => [
                 "label"      => "project -> name"
             ],
+            "mail_checking_enabled" => [
+                "label"      => "mail -> checking -> enabled",
+                "validators" => [
+                    "InArray"  => ["haystack" => ['Y', 'N']]
+                ]
+            ],
             "mail_checking_from" => [
                 "label"      => "mail -> checking -> from"
             ],
@@ -58,6 +98,30 @@ class Module extends AbstractionModule
             ],
             "authentication_key" => [
                 "label"      => "authentication -> key",
+            ],
+            "authentication_type" => [
+                "label"      => "authentication -> type",
+                "validators" => [
+                    "InArray"  => ["haystack" => ['db_table', 'db_user']]
+                ]
+            ],
+            "authentication_gateway_entity" => [
+                "label"      => "authentication -> gateway -> entity"
+            ],
+            "authentication_gateway_credentials_username" => [
+                "label"      => "authentication -> gateway -> credentials -> username"
+            ],
+            "authentication_gateway_credentials_pasword" => [
+                "label"      => "authentication -> gateway -> credentials -> password"
+            ],
+            "authorization_enabled" => [
+                "label"      => "authorization -> enabled",
+                "validators" => [
+                    "InArray"  => ["haystack" => ['Y', 'N']]
+                ]
+            ],
+            "database_prefix" => [
+                "label"      => "database -> prefix"
             ],
             "redirect" => [
                 "label"      => "redirect"
@@ -72,15 +136,51 @@ class Module extends AbstractionModule
 
         $data["validator"] = $validator;
 
-        # Validar formulario
-        if (!$validator->isValid())
+        try
         {
-            $data["messages"] = $validator->getMessages();
-            throw new \Exception("Module config errros in user.config!", 300);
+            if (!$validator->isValid())
+            {
+                $data["messages"] = $validator->getMessages();
+                throw new \Exception("Module config errros in user.config!", 300);
+            }
         }
+        catch (\Exception $e)
+        {
+            $file = str_replace('\\', '', __CLASS__);
+            $storage = new \Drone\Exception\Storage("cache/$file.json");
 
-        $this->setTranslator($c);
-	}
+            # stores the error code
+            if (($errorCode = $storage->store($e)) === false)
+            {
+                $errors = $storage->getErrors();
+
+                # if error storing is not possible, handle it (internal app error)
+                //$this->handleErrors($errors, __METHOD__);
+            }
+
+            $data["code"]    = $errorCode;
+            $data["message"] = $e->getMessage();
+
+            $config = include 'config/application.config.php';
+            $data["dev_mode"] = $config["environment"]["dev_mode"];
+
+            # stops current controller execution
+            $c->stopExecution(false);
+
+            # loads error view
+            $layoutManager = new Layout();
+            $layoutManager->setBasePath($c->getBasePath());
+
+            $layoutManager->setView($this, "validation");
+            $layoutManager->setParams($data);
+
+            # for AJAX requests!
+            if ($c->isXmlHttpRequest())
+                $layoutManager->content();
+            else
+                $layoutManager->fromTemplate($this, 'blank');
+        }
+    }
 
     private function setTranslator(AbstractionController $c)
     {
@@ -105,27 +205,5 @@ class Module extends AbstractionModule
 	public function getUserConfig()
 	{
 		return include __DIR__ . "/config/user.config.php";
-	}
-
-	private function toFormConfig($config)
-	{
-		$new_config = [];
-		$again = false;
-
-		foreach ($config as $param => $configure)
-		{
-			if (is_array($configure))
-			{
-				foreach ($configure as $key => $value)
-				{
-					$again = true;
-					$new_config[$param . "_" . $key] = $value;
-				}
-			}
-			else
-				$new_config[$param] = $configure;
-		}
-
-		return (!$again) ? $new_config : $this->toFormConfig($new_config);
 	}
 }

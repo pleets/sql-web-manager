@@ -1,0 +1,45 @@
+<?php $dev = $this->param('dev_mode'); ?>
+
+<?php if ($dev): ?>
+
+	<div class="alert alert-danger" role="alert">
+		<strong>
+			<i class="fas fa-exclamation-triangle"></i>
+		</strong> &nbsp;<?= $this->param("message") ?>
+	</div>
+
+	<?php if ($this->isParam("messages") && count($this->param("messages"))): ?>
+		<?php foreach($this->param("messages") as $input => $messages): ?>
+			<?php $lbl = $this->param("validator")->getOption($input, "label"); ?>
+
+				<h5><strong><?= $lbl ?></strong></h5>
+				<ol>
+					<?php foreach($messages as $code => $message): ?>
+						<li><?= $message ?></li>
+					<?php endforeach; ?>
+				</ol>
+
+		<?php endforeach; ?>
+	<?php endif; ?>
+
+<?php else: ?>
+
+	<div class="alert alert-danger" role="alert">
+
+		<div class="text-danger" style="float: left; font-size: 50px; margin-right: 10px;">
+			<i class="fas fa-exclamation-triangle"></i>
+		</div>
+
+		<strong class="text-danger">An error has occurred</strong><br />
+
+		<p class="text-justify">
+			The webpage you requested has had a problem, try to access again or contact to system administrator.
+			Use the <strong>back</strong>  button to navigate to last page or close this window.
+			<?php if ($this->param("code") !== false): ?>
+				<br /><br /><strong class="text-danger">Error code: </strong> <?= $this->param("code") ?>
+			<?php endif; ?>
+		</p>
+
+	</div>
+
+<?php endif; ?>

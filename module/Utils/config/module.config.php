@@ -12,7 +12,8 @@ return [
     ],
     'view_manager' => [
         'template_map' => [
-            'default'	=> __DIR__ . '/../view/layout/layout.phtml',
+            'HTTP404' => __DIR__ . '/../view/layout/404.phtml',
+            'blank'   => __DIR__ . '/../../Auth/view/layout/blank.phtml',
         ],
     ],
 ];
