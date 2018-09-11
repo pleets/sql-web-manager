@@ -665,57 +665,57 @@ class Tools extends AbstractionController
                     $data["time"]     += $post["time"];
                 }
 
-                $rows = $auth->getDb()->getArrayResult();
-
                 $data["data"] = [];
-
-                $k = 0;
-
-                # columns with errors in a select statement
-                $column_errors = [];
-
-                # data parsing
-                foreach ($rows as $key => $row)
-                {
-                    $k++;
-
-                    $data["data"][$key] = [];
-
-                    if ($isShowStm)
-                    {
-                        $data["data"][$key]["ROW_NUM"] = $k;
-                        $data["data"][$key][0] = $k;
-                    }
-
-                    foreach ($row as $column => $value)
-                    {
-                        if ($isShowStm)
-                            $column++;
-
-                        if (gettype($value) == 'object')
-                        {
-                            if  (get_class($value) == 'OCI-Lob')
-                            {
-                                if (($val = @$value->load()) === false)
-                                {
-                                    $val = null;   # only for default, this value is not used
-                                    $column_errors[] = $column;
-                                }
-
-                                $data["data"][$key][$column] = $val;
-                            }
-                            else
-                                $data["data"][$key][$column] = $value;
-                        }
-                        else {
-                            $data["data"][$key][$column] = $value;
-                        }
-                    }
-                }
 
                 # redirect view
                 if ($isSelectStm || $isShowStm)
                 {
+                    $rows = $auth->getDb()->getArrayResult();
+
+                    $k = 0;
+
+                    # columns with errors in a select statement
+                    $column_errors = [];
+
+                    # data parsing
+                    foreach ($rows as $key => $row)
+                    {
+                        $k++;
+
+                        $data["data"][$key] = [];
+
+                        if ($isShowStm)
+                        {
+                            $data["data"][$key]["ROW_NUM"] = $k;
+                            $data["data"][$key][0] = $k;
+                        }
+
+                        foreach ($row as $column => $value)
+                        {
+                            if ($isShowStm)
+                                $column++;
+
+                            if (gettype($value) == 'object')
+                            {
+                                if  (get_class($value) == 'OCI-Lob')
+                                {
+                                    if (($val = @$value->load()) === false)
+                                    {
+                                        $val = null;   # only for default, this value is not used
+                                        $column_errors[] = $column;
+                                    }
+
+                                    $data["data"][$key][$column] = $val;
+                                }
+                                else
+                                    $data["data"][$key][$column] = $value;
+                            }
+                            else {
+                                $data["data"][$key][$column] = $value;
+                            }
+                        }
+                    }
+
                     $data["column_errors"] = $column_errors;
 
                     if ($row_start > 1)
