@@ -9,7 +9,7 @@
 # SQL Web Manger
 ### Minimalist SQL IDE
 
-![img](http://i.imgur.com/VjFQ4it.png)
+![img](https://i.imgur.com/qOZ1Qh5.png)
 
 ## About
 
@@ -49,6 +49,18 @@ Set the following driver depeding your choice.
 | mysql     | Mysqli  |
 | oracle    | Oci8    |
 | sqlserver | Sqlsrv  |
+
+If you install the application in the root of your server, change the folling line on `config/application.config.php`
+
+```php
+        'base_path' => (dirname(dirname($_SERVER['PHP_SELF'])) == "/") ? "" : dirname(dirname($_SERVER['PHP_SELF'])),
+```
+
+to
+
+```php
+        'base_path' => (dirname(dirname($_SERVER['PHP_SELF'])) == "/") ? "" : "",
+```
 
 ## License
 
