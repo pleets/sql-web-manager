@@ -44,9 +44,11 @@ return [
 
 Set the following driver depeding your choice.
 
-mysql     -->  Mysqli
-oracle    -->  Oci8
-sqlserver -->  Sqlsrv
+| Engine    | Driver  |
+| --------- | ------- |
+| mysql     | Mysqli  |
+| oracle    | Oci8    |
+| sqlserver | Sqlsrv  |
 
 ## License
 
