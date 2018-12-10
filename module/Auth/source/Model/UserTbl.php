@@ -75,6 +75,9 @@ class UserTbl extends TableGateway
             $username_credential => $username
         ]);
 
+        if (!count($rowset))
+            throw new \Exception("The user does not exists!");
+
         $row = array_shift($rowset);
 
         $filtered_array = array();
