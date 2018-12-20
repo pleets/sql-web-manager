@@ -834,7 +834,7 @@ class Tools extends AbstractionController
                 "sql" => [
                     "label" => "SQL",
                     "validators" => [
-                        "Alnum"  => ["allowWhiteSpace" => false]
+                        "Regex" => ["pattern" => '/^[a-zA-Z0-9\+\/]+$/']
                     ]
                 ],
                 "type" => [
@@ -894,14 +894,9 @@ class Tools extends AbstractionController
                 }
             }
 
-            /* identifies if sql is base64 encoded */
-            if (array_key_exists('base64', $post))
-            {
-                if ((bool) $post["base64"])
-                    $post["sql"] = base64_decode($post["sql"]);
-            }
-
-            $data["sql"] = base64_encode($post["sql"]);
+            /* sql post value muest be ever base64 encoded */
+            $post["sql"] = base64_decode($post["sql"]);
+            $data["sql"] = $post["sql"];
 
             $sql_text = $post["sql"];
 
